@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { Subscription, forkJoin } from 'rxjs';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Observable, Subscription, forkJoin, of } from 'rxjs';
+import { catchError, map, tap, timeout } from 'rxjs/operators';
 import { ClientsService } from '../../services/api-client/clients/clients.service';
 import { IClientService } from '../../services/api-client/clients/iclient.service';
 import { IScheduleService } from '../../services/api-client/schedules/ischedule.service';
@@ -15,11 +16,21 @@ import {
   ScheduleAppointementMonthModel,
   SelectClientModel,
 } from '../schedule.models';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-schedules-month',
   standalone: true,
-  imports: [ScheduleCalendarComponent],
+  imports: [
+    ScheduleCalendarComponent,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    MatButtonModule,
+    AsyncPipe,
+  ],
   templateUrl: './schedules-month.component.html',
   styleUrl: './schedules-month.component.scss',
   providers: [
@@ -32,6 +43,10 @@ export class SchedulesMonthComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private selectedDate?: Date;
 
+  // Stream reativa para controle de estado no template
+  data$!: Observable<{ clients: SelectClientModel[]; schedules: ScheduleAppointementMonthModel }>;
+  loadingError = signal<boolean>(false);
+
   monthSchedule!: ScheduleAppointementMonthModel;
   clients: SelectClientModel[] = [];
 
@@ -39,36 +54,55 @@ export class SchedulesMonthComponent implements OnInit, OnDestroy {
     @Inject(SERVICES_TOKEN.HTTP.SCHEDULE) private readonly httpService: IScheduleService,
     @Inject(SERVICES_TOKEN.HTTP.CLIENT) private readonly clientHttpService: IClientService,
     @Inject(SERVICES_TOKEN.SNACKBAR) private readonly snackbarManage: ISnackbarManagerService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    const today = new Date();
-    this.selectedDate = today;
+    this.selectedDate = new Date();
+    this.loadInitialData();
+  }
 
-    // Busca clientes e agendamentos juntos no inicio
-    this.subscriptions.push(
-      forkJoin({
-        clients: this.clientHttpService.list(),
-        schedules: this.httpService.listInMonth(today.getFullYear(), today.getMonth() + 1),
-      }).subscribe({
-        next: ({ clients, schedules }: any) => {
-          this.clients = Array.isArray(clients) ? clients : clients.clients || clients.content || [];
+  loadInitialData(): void {
+    this.loadingError.set(false);
+    const today = this.selectedDate ?? new Date();
 
-          const appointmentsList = Array.isArray(schedules)
-            ? schedules
-            : schedules.scheduledAppointments || [];
+    this.data$ = forkJoin({
+      clients: this.clientHttpService.list(),
+      schedules: this.httpService.listInMonth(today.getFullYear(), today.getMonth() + 1),
+    }).pipe(
+      timeout(4000),
+      map(({ clients, schedules }: any) => {
+        const clientList = Array.isArray(clients)
+          ? clients
+          : clients.clients || clients.content || [];
+        const appointmentsList = Array.isArray(schedules)
+          ? schedules
+          : schedules.scheduledAppointments || [];
 
-          this.monthSchedule = {
+        const monthScheduleData: ScheduleAppointementMonthModel = {
+          year: today.getFullYear(),
+          month: today.getMonth() + 1,
+          scheduledAppointments: appointmentsList,
+        };
+
+        return { clients: clientList, schedules: monthScheduleData };
+      }),
+      tap(({ clients, schedules }) => {
+        this.clients = clients;
+        this.monthSchedule = schedules;
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      }),
+      catchError(() => {
+        this.loadingError.set(true);
+        return of({
+          clients: [],
+          schedules: {
             year: today.getFullYear(),
             month: today.getMonth() + 1,
-            scheduledAppointments: appointmentsList,
-          };
-
-          setTimeout(() => this.cdr.detectChanges(), 0);
-        },
-        error: () => this.snackbarManage.show('Erro ao carregar dados iniciais'),
-      })
+            scheduledAppointments: [],
+          },
+        });
+      }),
     );
   }
 
@@ -113,28 +147,29 @@ export class SchedulesMonthComponent implements OnInit, OnDestroy {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
 
-    this.httpService.listInMonth(year, month).subscribe({
-      next: (data: any) => {
-        const appointmentsList = Array.isArray(data)
-          ? data
-          : data.scheduledAppointments || [];
+    this.httpService
+      .listInMonth(year, month)
+      .pipe(
+        timeout(4000),
+        map((data: any) => {
+          const appointmentsList = Array.isArray(data) ? data : data.scheduledAppointments || [];
 
-        this.monthSchedule = {
-          year,
-          month,
-          scheduledAppointments: appointmentsList,
-        };
-
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-      error: () => {
-        this.monthSchedule = {
-          year,
-          month,
-          scheduledAppointments: [],
-        };
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-    });
+          return {
+            year,
+            month,
+            scheduledAppointments: appointmentsList,
+          };
+        }),
+        tap((schedules) => {
+          this.monthSchedule = schedules;
+          setTimeout(() => this.cdr.detectChanges(), 0);
+        }),
+        catchError(() => {
+          this.monthSchedule = { year, month, scheduledAppointments: [] };
+          setTimeout(() => this.cdr.detectChanges(), 0);
+          return of({ year, month, scheduledAppointments: [] });
+        }),
+      )
+      .subscribe();
   }
 }
