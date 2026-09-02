@@ -1,0 +1,16 @@
+<div class="menu">
+    <button mat-button [matMenuTriggerFor]="clientMenu">
+        <div class="menu-title">Clientes</div>
+    </button>
+    <mat-menu #clientMenu="matMenu" yPosition="below">
+        <button mat-menu-item (click)="navigateTo('clients/new-client')">Cadastro</button>
+        <button mat-menu-item (click)="navigateTo('clients/list')">Listagem</button>
+    </mat-menu>
+
+    <button mat-button [matMenuTriggerFor]="scheduleMenu">
+        <div class="menu-title">Agendar</div>
+    </button>
+    <mat-menu #scheduleMenu="matMenu" yPosition="below">
+        <button mat-menu-item (click)="navigateTo('schedules/month')">Calendário</button>
+    </mat-menu>
+</div>

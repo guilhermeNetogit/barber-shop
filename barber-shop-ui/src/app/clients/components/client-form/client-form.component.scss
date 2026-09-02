@@ -1,0 +1,47 @@
+.fil-col {
+  width: 100%
+}
+
+.div-button {
+  padding-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-card {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 700px;
+  margin: 24px auto;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.gap-3 {
+  gap: 16px;
+}
+
+/* Estilização moderna para os botões */
+.btn-cancelar {
+  margin-right: 16px !important;
+}
+
+.btn-custom {
+  height: 44px;
+  padding: 0 24px !important;
+  border-radius: 8px !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+
+  mat-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+    margin-right: 6px;
+  }
+}

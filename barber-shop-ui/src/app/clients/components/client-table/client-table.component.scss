@@ -1,0 +1,36 @@
+/* Reduz o tamanho da fonte e o espaçamento vertical das linhas */
+.mat-mdc-table {
+  width: 100%;
+}
+
+.mat-mdc-row, .mat-mdc-header-row {
+  height: 40px !important; // Reduz a altura da linha
+}
+
+.mat-mdc-cell, .mat-mdc-header-cell {
+  padding: 8px 12px !important; // Diminui o espaçamento interno
+  font-size: 0.875rem;
+}
+
+/* Reduz os botões de ação e os ícones de editar/deletar */
+.delete-button, .update-button {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  line-height: 32px !important;
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+  }
+}
+
+.delete-button {
+    margin-right: 0.15rem;
+}
+
+.update-button {
+    margin-left: 0.15rem;
+}

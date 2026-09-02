@@ -1,0 +1,8 @@
+@if (client && client.id) {
+  <app-client-form
+    [client]="client"
+    (clientSubmited)="onSubmitClient($event)">
+  </app-client-form>
+} @else {
+  <p class="text-center mt-3">Carregando dados do cliente...</p>
+}

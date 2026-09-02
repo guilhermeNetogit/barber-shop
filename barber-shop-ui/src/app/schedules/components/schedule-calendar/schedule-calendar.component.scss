@@ -1,0 +1,60 @@
+/* Container principal que centraliza todo o conteúdo na tela */
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 1rem;
+}
+
+.container {
+  max-width: 1100px; /* Define um limite para o conteúdo não espalhar em telas muito grandes */
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Alinhamento do formulário superior */
+form {
+  margin-bottom: 2rem;
+
+  .row {
+    display: flex;
+    align-items: center; /* Alinha o botão verticalmente com os campos */
+    justify-content: center;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  /* Ajusta o alinhamento vertical do botão + de inserção */
+  .col-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 1.25rem; /* Compensa o espaço da label dos inputs */
+  }
+}
+
+/* Alinhamento da seção inferior (Calendário + Tabela) */
+.row {
+  & > .col-6 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.calendar-card {
+  width: 100%;
+  max-width: 400px; /* Evita que o calendário fique gigante esticado */
+  margin: 0 auto;
+}
+
+table {
+  width: 100%;
+}
+
+mat-paginator {
+  width: 100%;
+}

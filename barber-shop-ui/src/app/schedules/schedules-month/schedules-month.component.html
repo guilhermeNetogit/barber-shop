@@ -1,0 +1,9 @@
+@if (monthSchedule) {
+  <app-schedule-calendar
+  [monthSchedule]="monthSchedule"
+  [clients]="clients"
+  (onDateChange)="onDateChange($event)"
+  (onConfirmDelete)="onConfirmDelete($event)"
+  (onScheduleClient)="onScheduleClient($event)">
+</app-schedule-calendar>
+}

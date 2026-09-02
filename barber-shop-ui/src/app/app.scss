@@ -1,0 +1,28 @@
+@use '@angular/material' as mat;
+
+.mat-toolbar {
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  border: 1px solid var(--mat-sys-secondary);
+}
+
+.title {
+  font-family: "Lobster",sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+.example-icon {
+  color: var(--mat-sys-on-primary);
+}
+
+.logo-img {
+  height: 40px; // Altere para o tamanho desejado (ex: 32px, 40px, 48px)
+  width: auto;
+  margin-right: 12px; // Espaçamento entre a logo e o texto "Barber Shop"
+  object-fit: contain;
+}

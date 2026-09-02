@@ -1,0 +1,36 @@
+@if (clients$ | async; as lista) {
+
+@if (loadingError()) {
+<div class="error-state">
+  <mat-icon color="warn">cloud_off</mat-icon>
+  <p>O servidor parece estar offline no momento. Tente novamente mais tarde.</p>
+  <button mat-raised-button color="primary" (click)="loadClients()">Tentar Novamente</button>
+</div>
+} @else {
+
+@if (lista.length > 0) {
+<mat-form-field subscriptSizing="dynamic">
+  <mat-label>Filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" #input>
+</mat-form-field>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <app-client-table [clients]="dataSource.filteredData" (onConfirmDelete)="delete($event)"
+        (onRequestUpdate)="update($event)">
+      </app-client-table>
+    </div>
+  </div>
+</div>
+} @else {
+<!-- ESTADO 3: Servidor respondeu ok, mas a lista veio vazia -->
+<div class="empty-state">
+  <p>Nenhum cliente encontrado.</p>
+</div>
+}}
+} @else {
+<div class="load-spinner">
+  <mat-spinner></mat-spinner>
+</div>
+}
