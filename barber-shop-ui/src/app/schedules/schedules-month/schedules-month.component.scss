@@ -1,0 +1,36 @@
+:host {
+  display: block;
+  max-width: 900px; /* Altere este valor para o tamanho desejado (ex: 800px, 900px) */
+  margin: 30px auto;
+  padding: 0 16px;
+}
+
+.load-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* Centraliza horizontalmente */
+  //justify-content: center;/* Centraliza verticalmente */
+  text-align: center;      /* Alinha o texto no centro */
+  min-height: 300px;       /* Altura mínima para permitir a centralização vertical */
+  padding: 2rem;
+
+  p {
+    margin: 1rem 0;
+  }
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 50px !important; // Defina a altura desejada aqui (ex: 40px)
+    padding-top: 0 !important;
+  }
+}

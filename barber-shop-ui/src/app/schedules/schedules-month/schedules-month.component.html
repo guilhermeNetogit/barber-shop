@@ -1,9 +1,30 @@
-@if (monthSchedule) {
-  <app-schedule-calendar
-  [monthSchedule]="monthSchedule"
-  [clients]="clients"
-  (onDateChange)="onDateChange($event)"
-  (onConfirmDelete)="onConfirmDelete($event)"
-  (onScheduleClient)="onScheduleClient($event)">
-</app-schedule-calendar>
-}
+<div class="container">
+  @if (loadingError()) {
+    <!-- ESTADO 1: Servidor Offline ou Erro de Conexão -->
+    <div class="error-state">
+      <mat-icon color="warn">cloud_off</mat-icon>
+      <p>O servidor parece estar offline no momento. Tente novamente mais tarde.</p>
+      <button mat-raised-button color="primary" (click)="loadInitialData()">
+        Tentar Novamente
+      </button>
+    </div>
+  } @else if (data$ | async; as data) {
+    <!-- ESTADO 2: Dados Carregados com Sucesso -->
+    <div class="row">
+      <div class="col-12">
+        <app-schedule-calendar
+          [monthSchedule]="monthSchedule"
+          [clients]="clients"
+          (onDateChange)="onDateChange($event)"
+          (onConfirmDelete)="onConfirmDelete($event)"
+          (onScheduleClient)="onScheduleClient($event)">
+        </app-schedule-calendar>
+      </div>
+    </div>
+  } @else {
+    <!-- ESTADO 3: Loading (Carregando Dados) -->
+    <div class="load-spinner">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    </div>
+  }
+</div>
