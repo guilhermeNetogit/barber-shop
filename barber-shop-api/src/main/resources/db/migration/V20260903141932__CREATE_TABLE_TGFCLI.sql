@@ -1,0 +1,1 @@
+-- V20260903141932__CREATE_TABLE_TGFCLI.sql generated via Maven Antrun
