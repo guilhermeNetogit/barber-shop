@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import br.com.barber_shop_api.entities.ScheduleEntity;
 
 @Repository
-public interface IScheduleRepository extends JpaRepository<IScheduleRepository, Long>{
+public interface IScheduleRepository extends JpaRepository<ScheduleEntity, Long>{
 
 	List<ScheduleEntity> findByStartAtGreaterThanEqualAndEndAtLessThanEqualOrderByStartAtAscEndAtAsc(
 			final OffsetDateTime inicio,

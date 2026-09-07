@@ -1,0 +1,15 @@
+package br.com.barber_shop_api.controller.response;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record UpdateClientReponse(
+		@JsonProperty("CODCLI")
+        Long id,
+        @JsonProperty("NOME")
+        String name,
+        @JsonProperty("EMAIL")
+        String email,
+        @JsonProperty("TELEFONE")
+        String phone) {
+
+}

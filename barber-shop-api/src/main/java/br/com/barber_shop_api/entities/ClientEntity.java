@@ -30,6 +30,7 @@ public class ClientEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "CODCLI")
 	private Long id;
 	
 	@Column(nullable = false, length = 150)

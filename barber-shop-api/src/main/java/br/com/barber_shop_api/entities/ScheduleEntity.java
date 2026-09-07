@@ -12,15 +12,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Table(name = "TGFAGE", uniqueConstraints = {
 		@UniqueConstraint(name = "UK_TGFAGE_INTERVAL", columnNames = { "INICIO", "FIM" }) })
+@Getter
+@Setter
 public class ScheduleEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "CODAGE")
 	private Long CODAGE;
 	
 	@Column(name = "INICIO")
