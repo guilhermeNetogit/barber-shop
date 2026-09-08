@@ -33,13 +33,13 @@ public class ClientEntity {
 	@Column(name = "CODCLI")
 	private Long id;
 	
-	@Column(nullable = false, length = 150)
+	@Column(name = "NOME", nullable = false, length = 150)
 	private String name;
 
-	@Column(nullable = false, length = 150)
+	@Column(name = "EMAIL", nullable = false, length = 150)
 	private String email;
 	
-	@Column(nullable = false, length = 11, columnDefinition = "bpchar(11)")
+	@Column(name = "TELEFONE", nullable = false, length = 11, columnDefinition = "bpchar(11)")
 	private String phone;
 
 	@ToString.Exclude

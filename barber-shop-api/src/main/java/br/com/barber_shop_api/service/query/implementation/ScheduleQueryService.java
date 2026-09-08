@@ -25,13 +25,13 @@ public class ScheduleQueryService implements IScheduleQueryService{
     }
 
     @Override
-    public List<ScheduleEntity> findInMonth(final OffsetDateTime startAt, final OffsetDateTime endAt) {
-        return repository.findByStartAtGreaterThanEqualAndEndAtLessThanEqualOrderByStartAtAscEndAtAsc(startAt, endAt);
+    public List<ScheduleEntity> findInMonth(final OffsetDateTime inicio, final OffsetDateTime fim) {
+        return repository.findByInicioGreaterThanEqualAndFimLessThanEqualOrderByInicioAscFimAsc(inicio, fim);
     }
 
     @Override
-    public void verifyIfScheduleExists(final OffsetDateTime startAt, final OffsetDateTime endAt) {
-        if (repository.existsByStartAtAndEndAt(startAt, endAt)){
+    public void verifyIfScheduleExists(final OffsetDateTime inicio, final OffsetDateTime fim) {
+        if (repository.existsByInicioAndFim(inicio, fim)){
             var message = "Já existe um cliente agendado no horário solicitado";
             throw new ScheduleInUseException(message);
         }
