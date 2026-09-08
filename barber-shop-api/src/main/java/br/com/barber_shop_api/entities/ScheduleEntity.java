@@ -28,10 +28,10 @@ public class ScheduleEntity {
 	@Column(name = "CODAGE")
 	private Long CODAGE;
 	
-	@Column(name = "INICIO")
+	@Column(name = "INICIO", columnDefinition = "datetime2")
 	private OffsetDateTime inicio;
 	
-	@Column(name = "FIM")
+	@Column(name = "FIM", columnDefinition = "datetime2")
 	private OffsetDateTime fim;
 	
 	@ToString.Exclude

@@ -11,9 +11,9 @@ import br.com.barber_shop_api.entities.ScheduleEntity;
 @Repository
 public interface IScheduleRepository extends JpaRepository<ScheduleEntity, Long>{
 
-	List<ScheduleEntity> findByStartAtGreaterThanEqualAndEndAtLessThanEqualOrderByStartAtAscEndAtAsc(
+	List<ScheduleEntity> findByInicioGreaterThanEqualAndFimLessThanEqualOrderByInicioAscFimAsc(
 			final OffsetDateTime inicio,
 			final OffsetDateTime fim);
 	
-	boolean existsByStartAtAndEndAt(final OffsetDateTime inicio, final OffsetDateTime fim);
+	boolean existsByInicioAndFim(final OffsetDateTime inicio, final OffsetDateTime fim);
 }

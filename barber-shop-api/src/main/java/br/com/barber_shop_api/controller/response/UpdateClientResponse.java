@@ -2,7 +2,7 @@ package br.com.barber_shop_api.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record UpdateClientReponse(
+public record UpdateClientResponse(
 		@JsonProperty("CODCLI")
         Long id,
         @JsonProperty("NOME")
