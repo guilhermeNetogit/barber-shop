@@ -1,6 +1,6 @@
 package br.com.barber_shop_api.controller.request;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -9,10 +9,10 @@ import jakarta.validation.constraints.NotNull;
 public record SaveScheduleRequest(
 		@NotNull
         @JsonProperty("INICIO")
-        OffsetDateTime inicio,
+        LocalDateTime inicio,
         @NotNull
         @JsonProperty("FIM")
-        OffsetDateTime fim,
+        LocalDateTime fim,
         @NotNull
         @JsonProperty("CODCLI")
         Long clientId

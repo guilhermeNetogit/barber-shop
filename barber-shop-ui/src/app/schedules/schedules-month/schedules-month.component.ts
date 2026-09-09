@@ -1,6 +1,10 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { Observable, Subscription, forkJoin, of } from 'rxjs';
-import { catchError, map, tap, timeout } from 'rxjs/operators';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Observable, Subscription, forkJoin, map, of } from 'rxjs';
+import { catchError, tap, timeout } from 'rxjs/operators';
 import { ClientsService } from '../../services/api-client/clients/clients.service';
 import { IClientService } from '../../services/api-client/clients/iclient.service';
 import { IScheduleService } from '../../services/api-client/schedules/ischedule.service';
@@ -16,10 +20,6 @@ import {
   ScheduleAppointementMonthModel,
   SelectClientModel,
 } from '../schedule.models';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-schedules-month',
@@ -72,12 +72,31 @@ export class SchedulesMonthComponent implements OnInit, OnDestroy {
     }).pipe(
       timeout(4000),
       map(({ clients, schedules }: any) => {
-        const clientList = Array.isArray(clients)
+        const rawClients = Array.isArray(clients)
           ? clients
           : clients.clients || clients.content || [];
-        const appointmentsList = Array.isArray(schedules)
+
+        const clientList: SelectClientModel[] = rawClients
+          .map((client: any) => ({
+            id: client.CODCLI ?? client.id,
+            name: client.NOME ?? client.name ?? '',
+          }))
+          .sort((a: SelectClientModel, b: SelectClientModel) =>
+            a.name.localeCompare(b.name, 'pt-Br', { sensitivity: 'base' }),
+          );
+
+        const rawAppointments = Array.isArray(schedules)
           ? schedules
           : schedules.scheduledAppointments || [];
+
+        const appointmentsList = rawAppointments.map((item: any) => ({
+          id: item.CODAGE ?? item.id,
+          day: item.DIA ?? item.day,
+          startAt: item.INICIO ?? item.startAt,
+          endAt: item.FIM ?? item.endAt,
+          clientId: item.CODCLI ?? item.clientId,
+          clientName: item.NOME ?? item.clientName,
+        }));
 
         const monthScheduleData: ScheduleAppointementMonthModel = {
           year: today.getFullYear(),
@@ -127,18 +146,86 @@ export class SchedulesMonthComponent implements OnInit, OnDestroy {
 
   onScheduleClient(schedule: SaveScheduleModel) {
     if (schedule.startAt && schedule.endAt && schedule.clientId) {
-      const request: SaveScheduleRequest = {
-        startAt: schedule.startAt,
-        endAt: schedule.endAt,
-        clientId: schedule.clientId,
+      const selected = this.selectedDate ?? new Date();
+
+      const formatLocalISO = (date: Date): string => {
+        const pad = (num: number) => String(num).padStart(2, '0');
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
       };
 
-      this.httpService.save(request).subscribe({
+      // Extrai hora e minuto do startAt
+      let startHours = 0,
+        startMinutes = 0;
+      const startVal = schedule.startAt as any;
+      if (startVal instanceof Date) {
+        startHours = startVal.getHours();
+        startMinutes = startVal.getMinutes();
+      } else if (typeof startVal === 'string') {
+        const parts = startVal.includes('T')
+          ? startVal.split('T')[1].split(':')
+          : startVal.split(':');
+        startHours = parseInt(parts[0], 10) || 0;
+        startMinutes = parseInt(parts[1], 10) || 0;
+      }
+
+      // Extrai hora e minuto do endAt
+      let endHours = 0,
+        endMinutes = 0;
+      const endVal = schedule.endAt as any;
+      if (endVal instanceof Date) {
+        endHours = endVal.getHours();
+        endMinutes = endVal.getMinutes();
+      } else if (typeof endVal === 'string') {
+        const parts = endVal.includes('T') ? endVal.split('T')[1].split(':') : endVal.split(':');
+        endHours = parseInt(parts[0], 10) || 0;
+        endMinutes = parseInt(parts[1], 10) || 0;
+      }
+
+      // Data de Início no dia selecionado
+      const startDate = new Date(
+        selected.getFullYear(),
+        selected.getMonth(),
+        selected.getDate(),
+        startHours,
+        startMinutes,
+        0,
+      );
+
+      // Data de Término
+      const endDate = new Date(
+        selected.getFullYear(),
+        selected.getMonth(),
+        selected.getDate(),
+        endHours,
+        endMinutes,
+        0,
+      );
+      if (endDate < startDate) {
+        endDate.setDate(endDate.getDate() + 1); // Trata virada do dia (ex: 23:30 até 00:30)
+      }
+
+      const request = {
+        INICIO: formatLocalISO(startDate),
+        FIM: formatLocalISO(endDate),
+        CODCLI: Number(schedule.clientId),
+      };
+
+      this.httpService.save(request as any).subscribe({
         next: () => {
           this.snackbarManage.show('Agendamento realizado com sucesso');
           this.fetchSchedules(this.selectedDate ?? new Date());
         },
-        error: () => this.snackbarManage.show('Erro ao realizar o agendamento'),
+        error: (err) => {
+          console.error('Erro ao salvar:', err);
+          this.snackbarManage.show('Erro ao realizar o agendamento');
+        },
       });
     }
   }
@@ -152,7 +239,16 @@ export class SchedulesMonthComponent implements OnInit, OnDestroy {
       .pipe(
         timeout(4000),
         map((data: any) => {
-          const appointmentsList = Array.isArray(data) ? data : data.scheduledAppointments || [];
+          const rawAppointments = Array.isArray(data) ? data : data.scheduledAppointments || [];
+
+          const appointmentsList = rawAppointments.map((item: any) => ({
+            id: item.CODAGE ?? item.id,
+            day: item.DIA ?? item.day,
+            startAt: item.INICIO ?? item.startAt,
+            endAt: item.FIM ?? item.endAt,
+            clientId: item.CODCLI ?? item.clientId,
+            clientName: item.NOME ?? item.clientName,
+          }));
 
           return {
             year,

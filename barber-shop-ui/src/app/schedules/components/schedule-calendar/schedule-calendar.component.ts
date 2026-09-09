@@ -126,10 +126,24 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
       return;
     }
 
+    let startHours = 0;
+    let startMinutes = 0;
+
+    const startVal = this.newSchedule.startAt as any;
+
+    if (typeof startVal === 'string') {
+      const [h, m] = startVal.split(':').map(Number);
+      startHours = h;
+      startMinutes = m;
+    } else if (startVal instanceof Date) {
+      startHours = startVal.getHours();
+      startMinutes = startVal.getMinutes();
+    }
+
     const startAt = new Date(this._selected);
-    const endAt = new Date(this._selected);
-    startAt.setHours(this.newSchedule.startAt.getHours(), this.newSchedule.startAt.getMinutes(), 0);
-    endAt.setHours(this.newSchedule.endAt.getHours(), this.newSchedule.endAt.getMinutes(), 0);
+    startAt.setHours(startHours, startMinutes, 0);
+
+    const endAt = new Date(this.newSchedule.endAt);
 
     const clientObj = this.clients.find((c) => Number(c.id) === Number(this.newSchedule.clientId));
 
@@ -142,7 +156,7 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
       clientName: clientObj ? clientObj.name : 'Cliente',
     };
 
-    // Emite para o pai salvar no backend/JSON Server
+    // Emite para salvar no backend
     this.onScheduleClient.emit({
       startAt: saved.startAt,
       endAt: saved.endAt,
@@ -171,11 +185,25 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
       });
   }
 
-  onTimeChange(time: Date | null) {
+  onTimeChange(time: string | Date | null) {
     if (!time) return;
 
-    const endAt = new Date(time);
-    endAt.setHours(time.getHours() + 1);
+    let hours = 0;
+    let minutes = 0;
+
+    if (typeof time === 'string') {
+      const [h, m] = time.split(':').map(Number);
+      hours = h;
+      minutes = m;
+    } else if (time instanceof Date) {
+      hours = time.getHours();
+      minutes = time.getMinutes();
+    }
+
+    // Calcula 1 hora a mais para o término
+    const endAt = new Date(this._selected);
+    endAt.setHours(hours + 1, minutes, 0);
+
     this.newSchedule.endAt = endAt;
   }
 
@@ -216,4 +244,35 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
       this.dataSource.paginator = this.paginator;
     }
   }
+
+  // Lista de horários disponíveis no dia (de 30 em 30 min)
+  availableTimeSlots: string[] = [
+    '07:00', '07:30','08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+    '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+    '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+    '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'
+  ];
+
+isTimeSlotDisabled(timeString: string): boolean {
+  if (!this.dataSource || !this.dataSource.data || this.dataSource.data.length === 0) {
+    return false;
+  }
+
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const slotMinutes = hours * 60 + minutes;
+
+  return this.dataSource.data.some((schedule) => {
+    const start = new Date(schedule.startAt);
+    const end = new Date(schedule.endAt);
+
+    const startMinutes = start.getHours() * 60 + start.getMinutes();
+    let endMinutes = end.getHours() * 60 + end.getMinutes();
+
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60;
+    }
+
+    return slotMinutes >= startMinutes && slotMinutes < endMinutes;
+  });
+}
 }
