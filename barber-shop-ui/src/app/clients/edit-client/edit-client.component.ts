@@ -44,10 +44,16 @@ export class EditClientComponent implements OnInit, OnDestroy {
     }
 
     this.httpsubscription = this.httpService.findById(Number(id)).subscribe({
-      next: (data) => {
-        // 2. Cria uma nova referência para o objeto do cliente
-        this.client = { ...data };
-        // 3. Notifica o Angular para atualizar a tela e liberar o @if
+      next: (data: any) => {
+        // 1. Mapeia as propriedades em CAIXA ALTA do backend para as propriedades em caixa baixa
+        this.client = {
+          id: data.CODCLI ?? data.id,
+          name: data.NOME ?? data.name,
+          email: data.EMAIL ?? data.email,
+          phone: data.TELEFONE ?? data.phone
+        };
+
+        // 2. Notifica o Angular para atualizar a tela e liberar o @if
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -60,18 +66,32 @@ export class EditClientComponent implements OnInit, OnDestroy {
     this.httpsubscription?.unsubscribe();
   }
 
-  onSubmitClient(value: ClientModelForm) {
-    const { id, ...request } = value
-    if (id) {
-      this.httpsubscription = this.httpService.update(id, request).subscribe(_ => {
-        this.snackBarManager.show('Usuário autalizado com sucesso')
-        this.router.navigate(['clients/list'])
+  onSubmitClient(formData: any): void {
+  const id = this.activatedRoute.snapshot.paramMap.get('id');
 
-      })
-      return
+  if (!id) return;
+
+  // Remova caracteres não numéricos do telefone caso a API aceite só números
+  const rawPhone = formData.phone ? formData.phone.replace(/\D/g, '') : '';
+
+  // Monte o objeto no formato esperado pelo Backend (Caixa Alta)
+  const payload = {
+    CODCLI: Number(id),
+    NOME: formData.name,
+    EMAIL: formData.email,
+    TELEFONE: rawPhone // ou formData.phone, dependendo de como o banco salva
+  };
+
+  this.httpService.update(Number(id), payload as any).subscribe({
+    next: () => {
+      this.snackBarManager.show('Cliente atualizado com sucesso!');
+      this.router.navigate(['clients/list']);
+    },
+    error: (err) => {
+      console.error('Erro na atualização:', err);
+      this.snackBarManager.show('Erro ao atualizar dados do cliente.');
     }
-    this.snackBarManager.show('Um erro inesperado aconteceu')
-    this.router.navigate(['clients/list'])
-  }
+  });
+}
 
 }

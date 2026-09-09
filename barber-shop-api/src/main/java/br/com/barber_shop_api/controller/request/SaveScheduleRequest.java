@@ -9,10 +9,10 @@ import jakarta.validation.constraints.NotNull;
 public record SaveScheduleRequest(
 		@NotNull
         @JsonProperty("INICIO")
-        OffsetDateTime startAt,
+        OffsetDateTime inicio,
         @NotNull
         @JsonProperty("FIM")
-        OffsetDateTime endAt,
+        OffsetDateTime fim,
         @NotNull
         @JsonProperty("CODCLI")
         Long clientId

@@ -2,10 +2,13 @@ package br.com.barber_shop_api.mapper;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import br.com.barber_shop_api.controller.request.SaveScheduleRequest;
 import br.com.barber_shop_api.controller.response.ClientScheduleAppointmentResponse;
@@ -21,6 +24,8 @@ public interface IScheduleMapper {
 	ScheduleEntity toEntity(final SaveScheduleRequest request);
 
 	@Mapping(target = "clientId", source = "client.id")
+	@Mapping(target = "inicio", source = "inicio", qualifiedByName = "offsetToString")
+	@Mapping(target = "fim", source = "fim", qualifiedByName = "offsetToString")
 	SaveScheduleResponse toSaveResponse(final ScheduleEntity entity);
 
 	@Mapping(target = "scheduledAppointments", expression = "java(toClientMonthResponse(entities))")
@@ -31,7 +36,12 @@ public interface IScheduleMapper {
 
 	@Mapping(target = "clientId", source = "client.id")
 	@Mapping(target = "clientName", source = "client.name")
-	@Mapping(target = "day", expression = "java(entity.getStartAt().getDayOfMonth())")
+	@Mapping(target = "dia", expression = "java(entity.getInicio().getDayOfMonth())")
 	ClientScheduleAppointmentResponse toClientMonthResponse(final ScheduleEntity entity);
+
+	@Named("offsetToString")
+	default String offsetToString(OffsetDateTime value) {
+		return value != null ? value.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) : null;
+	}
 
 }

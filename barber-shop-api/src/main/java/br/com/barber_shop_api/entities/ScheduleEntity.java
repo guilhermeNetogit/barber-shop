@@ -26,7 +26,7 @@ public class ScheduleEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "CODAGE")
-	private Long CODAGE;
+	private Long id;
 	
 	@Column(name = "INICIO", columnDefinition = "datetime2")
 	private OffsetDateTime inicio;
@@ -41,7 +41,7 @@ public class ScheduleEntity {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(CODAGE, fim, inicio);
+		return Objects.hash(id, fim, inicio);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class ScheduleEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		ScheduleEntity other = (ScheduleEntity) obj;
-		return Objects.equals(CODAGE, other.CODAGE) && 
+		return Objects.equals(id, other.id) && 
 				Objects.equals(fim, other.fim) &&
 				Objects.equals(inicio, other.inicio);
 	}

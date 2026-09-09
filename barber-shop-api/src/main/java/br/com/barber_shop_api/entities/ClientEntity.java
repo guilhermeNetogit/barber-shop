@@ -1,8 +1,12 @@
 package br.com.barber_shop_api.entities;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -41,6 +45,14 @@ public class ClientEntity {
 	
 	@Column(name = "TELEFONE", nullable = false, length = 11, columnDefinition = "bpchar(11)")
 	private String phone;
+	
+	@CreationTimestamp
+	@Column(name = "DTINC", updatable = false)
+	private LocalDateTime dtinc;
+	
+	@UpdateTimestamp
+	@Column(name = "DTALTER")
+	private LocalDateTime dtalter;
 
 	@ToString.Exclude
 	@OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)

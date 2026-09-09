@@ -57,19 +57,29 @@ export class ListClientsComponent implements OnInit {
 
   loadClients(): void {
     this.loadingError.set(false);
-    // A ordenação e o tratamento do array acontecem dentro da stream reativa
+
     this.clients$ = this.httpService.list().pipe(
       timeout(4000),
       map((data: any) => {
-        const list: ClientModelTable[] = Array.isArray(data)
-          ? data
-          : data.clients || data.content || [];
+        const rawList: any[] = Array.isArray(data) ? data : data.clients || data.content || [];
+
+        // Mapeia garantindo compatibilidade entre Caixa Alta do Banco e Caixa Baixa da Interface
+        const list: ClientModelTable[] = rawList.map((item) => ({
+          id: item.CODCLI ?? item.id,
+          name: item.NOME ?? item.name ?? '',
+          email: item.EMAIL ?? item.email ?? '',
+          phone: item.TELEFONE ?? item.phone ?? '',
+        }));
+
+        // Ordena pelo nome
         return list.sort((a, b) => a.name.localeCompare(b.name));
       }),
       tap((list) => {
+        // Atualiza os dados do MatTableDataSource
         this.dataSource.data = list;
       }),
-      catchError(() => {
+      catchError((err) => {
+        console.error('Erro ao carregar clientes:', err);
         this.loadingError.set(true);
         this.dataSource.data = [];
         return of([]);
@@ -77,8 +87,9 @@ export class ListClientsComponent implements OnInit {
     );
   }
 
-  update(client: ClientModelTable) {
-    this.router.navigate(['clients/edit-client', client.id]);
+  update(client: any): void {
+    const id = client.CODCLI ?? client.id;
+    this.router.navigate(['clients/edit-client', id]);
   }
 
   delete(client: ClientModelTable) {
