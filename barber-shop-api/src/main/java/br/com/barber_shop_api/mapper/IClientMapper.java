@@ -17,20 +17,21 @@ import br.com.barber_shop_api.entities.ClientEntity;
 
 @Mapper(componentModel = SPRING)
 public interface IClientMapper {
-	
+
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "schedules", ignore = true)
 	ClientEntity toEntity(final SaveClientRequest request);
-	
+
 	SaveClientResponse toSaveResponse(final ClientEntity entity);
-	
+
+	@Mapping(target = "id", source = "id")
 	@Mapping(target = "schedules", ignore = true)
-    ClientEntity toEntity(final long id, final UpdateClientRequest request);
+	ClientEntity toEntity(final long id, final UpdateClientRequest request);
 
-    UpdateClientResponse toUpdateResponse(final ClientEntity entity);
+	UpdateClientResponse toUpdateResponse(final ClientEntity entity);
 
-    ClientDetailResponse toDetailResponse(final ClientEntity entity);
+	ClientDetailResponse toDetailResponse(final ClientEntity entity);
 
-    List<ListClientResponse> toListResponse(final List<ClientEntity> entities);
+	List<ListClientResponse> toListResponse(final List<ClientEntity> entities);
 
 }

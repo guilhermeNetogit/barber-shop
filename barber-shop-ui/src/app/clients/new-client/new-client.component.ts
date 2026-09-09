@@ -36,25 +36,32 @@ export class NewClientComponent implements OnDestroy {
   }
 
   onSubmitClient(value: ClientModelForm) {
-    console.log('3. Evento recebido no Pai com os dados:', value);
-    const { id, ...request } = value;
+    console.log('Dados do formulário original:', value);
 
-    this.httpSubscription = this.httpService.listByEmail(request.email).pipe(switchMap((clients: any[]) => {
-      if(clients && clients.length > 0) {
-        this.snackBarManager.show('Este e-mail já está cadastrado!');
-        return of(null);
-      }
-      return this.httpService.save(request);
-    })
-  ).subscribe({
+    // Remove caracteres não numéricos do celular
+    const rawPhone = value.phone ? value.phone.replace(/\D/g, '') : '';
+
+    // Garante que o objeto tenha exatamente as chaves do record Java: name, email, phone
+    const payload = {
+      name: value.name,
+      email: value.email.trim().toLowerCase(),
+      phone: rawPhone,
+    };
+
+    console.log('Payload enviado no POST:', payload);
+
+    this.httpSubscription = this.httpService.save(payload).subscribe({
       next: (res) => {
-        if(res) {
-        console.log('4. Resposta do Backend:', res);
+        console.log('Resposta do Backend:', res);
         this.snackBarManager.show('Usuário cadastrado com sucesso!');
-        this.router.navigate(['client/list']);
-        }
+        this.router.navigate(['clients/list']);
       },
-      error: (err) => console.error('5. Erro na requisição HTTP:', err),
+      error: (err) => {
+        console.error('Erro na requisição HTTP:', err);
+        const backendMessage =
+          err?.error?.MESSAGE || err?.error?.detail || 'Erro ao cadastrar o cliente.';
+        this.snackBarManager.show(backendMessage);
+      },
     });
   }
 }

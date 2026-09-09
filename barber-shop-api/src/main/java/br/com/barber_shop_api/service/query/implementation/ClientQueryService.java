@@ -50,7 +50,8 @@ public class ClientQueryService implements IClientQueryService {
 
     @Override
     public void verifyEmail(final String email) {
-        if (repository.existsByEmail(email)) {
+    	var cleanEmail = email.trim().toLowerCase();
+        if (repository.existsByEmail(cleanEmail)) {
             var message = "O e-mail " + email + " já está em uso";
             throw new EmailInUseException(message);
         }
@@ -59,9 +60,9 @@ public class ClientQueryService implements IClientQueryService {
     @Override
     public void verifyEmail(final long id, final String email) {
         var optional = repository.findByEmail(email);
-        if (optional.isPresent() && !Objects.equals(optional.get().getPhone(), email)) {
+        if (optional.isPresent() && !Objects.equals(optional.get().getId(), id)) {
             var message = "O e-mail " + email + " já está em uso";
-            throw new PhoneInUseException(message);
+            throw new EmailInUseException(message);
         }
     }
 

@@ -2,12 +2,12 @@
 <project xmlns="http://apache.org" xmlns:xsi="http://w3.org"
 	xsi:schemaLocation="http://apache.org https://apache.org">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.13</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>br.com.dio</groupId>
@@ -20,8 +20,9 @@
 		<java.version>21</java.version>
 		<org.mapstruct.version>1.6.3</org.mapstruct.version>
 		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+		<lombok.version>1.18.34</lombok.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-   		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 	</properties>
 
@@ -68,7 +69,8 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.34</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- DevTools -->
@@ -99,29 +101,31 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>21</release>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>${lombok.version}</version>
+							<version>1.18.34</version>
 						</path>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok-mapstruct-binding</artifactId>
-							<version>${lombok-mapstruct-binding.version}</version>
+							<version>0.2.0</version>
 						</path>
 						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
-							<version>${org.mapstruct.version}</version>
+							<version>1.6.3</version>
 						</path>
 					</annotationProcessorPaths>
+					<compilerArgs>
+						<arg>-Amapstruct.defaultComponentModel=spring</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
-
 			<!-- Task: Criação automática do arquivo trigger.txt -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -136,7 +140,7 @@
 						<configuration>
 							<target>
 								<echo message="Gerando arquivo de trigger..." />
-								<mkdir dir="src/main/resources"/>
+								<mkdir dir="src/main/resources" />
 								<script language="javascript">
 									<![CDATA[
 									var file = new java.io.File("src/main/resources/trigger.txt");
@@ -171,22 +175,32 @@
 								</goals>
 								<configuration>
 									<target>
-										<!-- Garante que a pasta de destino exista -->
-										<mkdir dir="src/main/resources/db/migration" />
-										
-										<!-- Captura o Timestamp atual do sistema -->
+										<!-- Garante que a pasta de destino
+										exista -->
+										<mkdir
+											dir="src/main/resources/db/migration" />
+
+										<!-- Captura o Timestamp atual do
+										sistema -->
 										<tstamp>
-											<format property="current.time" pattern="yyyyMMddHHmmss" />
+											<format property="current.time"
+												pattern="yyyyMMddHHmmss" />
 										</tstamp>
-										
-										<property name="migration.file" value="src/main/resources/db/migration/V${current.time}__${migrationName}.sql" />
-										
-										<echo message="Criando arquivo: ${migration.file}" />
-										
-										<!-- Cria o arquivo de migração com cabeçalho padrão -->
-										<echo file="${migration.file}">-- V${current.time}__${migrationName}.sql generated via Maven Antrun</echo>
-										
-										<echo message="🟩 Arquivo de migração gerado com sucesso!" />
+
+										<property name="migration.file"
+											value="src/main/resources/db/migration/V${current.time}__${migrationName}.sql" />
+
+										<echo
+											message="Criando arquivo: ${migration.file}" />
+
+										<!-- Cria o arquivo de migração com
+										cabeçalho padrão -->
+										<echo file="${migration.file}">--
+											V${current.time}__${migrationName}.sql
+											generated via Maven Antrun</echo>
+
+										<echo
+											message="Arquivo de migração gerado com sucesso!" />
 									</target>
 								</configuration>
 							</execution>

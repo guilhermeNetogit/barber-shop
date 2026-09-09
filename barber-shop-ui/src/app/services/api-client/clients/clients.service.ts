@@ -1,9 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { IClientService } from './iclient.service';
 import { Observable } from 'rxjs';
-import { SaveClientRequest, SaveClientResponse, UpdateClientRequest, UpdateClientResponse, ListClientResponse, FindIdClientResponse } from './client.models';
 import { environment } from '../../../../environments/enviroment';
+import {
+  FindIdClientResponse,
+  ListClientResponse,
+  SaveClientRequest,
+  SaveClientResponse,
+  UpdateClientRequest,
+  UpdateClientResponse,
+} from './client.models';
+import { IClientService } from './iclient.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +33,7 @@ export class ClientsService implements IClientService {
   }
 
   list(): Observable<ListClientResponse> {
-    return this.http.get<ListClientResponse>(`${this.resourceUrl}clients`)
+    return this.http.get<ListClientResponse>(`${this.resourceUrl}clients`);
   }
 
   listByEmail(email: string): Observable<SaveClientResponse[]> {
@@ -36,5 +43,4 @@ export class ClientsService implements IClientService {
   findById(id: number): Observable<FindIdClientResponse> {
     return this.http.get<FindIdClientResponse>(`${this.resourceUrl}clients/${id}`);
   }
-
 }
