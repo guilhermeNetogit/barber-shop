@@ -2,7 +2,9 @@ package br.com.barber_shop_api.mapper;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -20,10 +22,14 @@ import br.com.barber_shop_api.entities.ScheduleEntity;
 public interface IScheduleMapper {
 
 	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "client.id", ignore = true)
+	@Mapping(target = "client.id", source = "clientId")
+	@Mapping(target = "inicio", source = "inicio", qualifiedByName = "localToOffset")
+	@Mapping(target = "fim", source = "fim", qualifiedByName = "localToOffset")
 	ScheduleEntity toEntity(final SaveScheduleRequest request);
 
-	@Mapping(target = "clientId", source = "client.id")
+	@Mapping(target = "codcli", source = "client.id")
+	@Mapping(target = "nome", source = "client.name")
+	@Mapping(target = "codage", source = "id")
 	@Mapping(target = "inicio", source = "inicio", qualifiedByName = "offsetToString")
 	@Mapping(target = "fim", source = "fim", qualifiedByName = "offsetToString")
 	SaveScheduleResponse toSaveResponse(final ScheduleEntity entity);
@@ -44,4 +50,11 @@ public interface IScheduleMapper {
 		return value != null ? value.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) : null;
 	}
 
+	@Named("localToOffset")
+	default OffsetDateTime localToOffset(LocalDateTime value) {
+		if (value == null) {
+			return null;
+		}
+		return value.atZone(ZoneId.systemDefault()).toOffsetDateTime();
+	}
 }

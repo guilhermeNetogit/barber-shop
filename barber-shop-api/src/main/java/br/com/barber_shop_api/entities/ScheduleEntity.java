@@ -36,8 +36,8 @@ public class ScheduleEntity {
 	
 	@ToString.Exclude
 	@ManyToOne
-	@JoinColumn(name = "CODCLI")
-	private ClientEntity client = new ClientEntity();
+	@JoinColumn(name = "CODCLI", nullable = false)
+	private ClientEntity client;
 
 	@Override
 	public int hashCode() {

@@ -21,7 +21,7 @@ export interface SaveScheduleResponse {
 }
 
 export interface SaveScheduleRequest {
-    startAt: Date
-    endAt: Date
-    clientId: number
+    INICIO: string
+    FIM: string
+    CODCLI: number
 }

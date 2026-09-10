@@ -22,12 +22,12 @@ export class SchedulesService implements IScheduleService {
     return this.http.delete<void>(`${this.basePath}schedules/${id}`)
   }
   listInMonth(year: number, month: number): Observable<ScheduleAppointmentMonthResponse> {
-  return this.http.get<ScheduleAppointmentMonthResponse>(`${this.basePath}schedules?year=${year}&month=${month}`);
+  return this.http.get<ScheduleAppointmentMonthResponse>(`${this.basePath}schedules/${year}/${month}`);
 }
 
   getByMonth(year: number, month: number): Observable<ScheduleAppointementMonthModel> {
     const formattedMonth = String(month).padStart(2, '0');
-    return this.http.get<ScheduleAppointementMonthModel>(`${this.basePath}schedules?year=${year}&month=${month}`);
+    return this.http.get<ScheduleAppointementMonthModel>(`${this.basePath}schedules/${year}/${month}`);
   }
 
 }

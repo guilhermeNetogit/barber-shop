@@ -3,13 +3,11 @@ package br.com.barber_shop_api.controller.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record SaveScheduleResponse(
-		@JsonProperty("CODAGE")
-        Long id,
-        @JsonProperty("INICIO")
-        String inicio,
-        @JsonProperty("FIM")
-        String fim,
-        @JsonProperty("CODCLI")
-        Long clientId) {
+		@JsonProperty("id") Long codage,
+		@JsonProperty("day") Integer dia,
+		@JsonProperty("startAt") String inicio,
+		@JsonProperty("endAt") String fim, 
+		@JsonProperty("clientId") Long codcli,
+		@JsonProperty("clientName") String nome) {
 
 }
