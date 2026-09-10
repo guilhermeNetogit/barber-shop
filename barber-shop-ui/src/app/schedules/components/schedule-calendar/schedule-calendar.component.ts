@@ -202,7 +202,8 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
 
     // Calcula 1 hora a mais para o término
     const endAt = new Date(this._selected);
-    endAt.setHours(hours + 1, minutes, 0);
+    endAt.setHours(hours, minutes, 0, 0);
+    endAt.setMinutes(endAt.getMinutes() + 30);
 
     this.newSchedule.endAt = endAt;
   }

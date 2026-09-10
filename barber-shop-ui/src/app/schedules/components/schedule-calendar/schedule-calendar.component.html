@@ -6,8 +6,10 @@
         <div class="row">
           <div class="col-4">
             <mat-form-field appearance="outline">
-              <mat-label>Inicio</mat-label>
-              <mat-select [(ngModel)]="newSchedule.startAt" name="startAt"
+              <mat-label>Início</mat-label>
+              <mat-select
+                [(ngModel)]="newSchedule.startAt"
+                name="startAt"
                 (selectionChange)="onTimeChange($event.value)" required>
                 @for (time of availableTimeSlots; track time) {
                 <mat-option [value]="time" [disabled]="isTimeSlotDisabled(time)">
@@ -22,13 +24,11 @@
               <mat-label>Término</mat-label>
               <input
               matInput
-              [matTimepicker]="endAtPicker"
               [value]="newSchedule.endAt ? (newSchedule.endAt | date:'HH:mm') : ''"
               readonly
-              [ngModelOptions]="{updateOn: 'blur'}"
               name="endAt"
-              id="endAt" #endAtModel="ngModel"
-              [(ngModel)]="newSchedule.endAt" disabled="true">
+              id="endAt"
+              disabled="true">
               <mat-timepicker #endAtPicker />
               <mat-timepicker-toggle [for]="endAtPicker" matSuffix />
             </mat-form-field>
@@ -90,7 +90,7 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
-      <mat-paginator [pageSizeOptions]="[3, 6, 9]" showFirstLastButton></mat-paginator>
+      <mat-paginator [pageSizeOptions]="[5, 10, 15]" showFirstLastButton></mat-paginator>
     </div>
   </div>
 </div>
