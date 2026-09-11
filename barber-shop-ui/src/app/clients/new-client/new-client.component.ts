@@ -1,13 +1,17 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { of, Subscription, switchMap } from 'rxjs';
+import { retry, Subscription } from 'rxjs';
+import { YesNoDialogComponent } from '../../commons/components/yes-no-dialog/yes-no-dialog.component';
 import { ClientsService } from '../../services/api-client/clients/clients.service';
 import { IClientService } from '../../services/api-client/clients/iclient.service';
+import { DialogManagerService } from '../../services/dialog-manager.service';
+import { IDialogManagerService } from '../../services/idialog-manager.service';
+import { ISnackbarManagerService } from '../../services/isnackbar-manager.service';
 import { SERVICES_TOKEN } from '../../services/service.token';
+import { SnackbarManagerService } from '../../services/snackbar-manager.service';
 import { ClientModelForm } from '../client.models';
 import { ClientFormComponent } from '../components/client-form/client-form.component';
-import { ISnackbarManagerService } from '../../services/isnackbar-manager.service';
-import { SnackbarManagerService } from '../../services/snackbar-manager.service';
 
 @Component({
   selector: 'app-new-client',
@@ -17,6 +21,7 @@ import { SnackbarManagerService } from '../../services/snackbar-manager.service'
   providers: [
     { provide: SERVICES_TOKEN.HTTP.CLIENT, useClass: ClientsService },
     { provide: SERVICES_TOKEN.SNACKBAR, useClass: SnackbarManagerService },
+    { provide: SERVICES_TOKEN.DIALOG, useClass: DialogManagerService },
   ],
 })
 export class NewClientComponent implements OnDestroy {
@@ -25,6 +30,7 @@ export class NewClientComponent implements OnDestroy {
   constructor(
     @Inject(SERVICES_TOKEN.HTTP.CLIENT) private readonly httpService: IClientService,
     @Inject(SERVICES_TOKEN.SNACKBAR) private readonly snackBarManager: ISnackbarManagerService,
+    @Inject(SERVICES_TOKEN.DIALOG) private readonly dialogManager: IDialogManagerService,
 
     private readonly router: Router,
   ) {}
@@ -56,11 +62,20 @@ export class NewClientComponent implements OnDestroy {
         this.snackBarManager.show('Usuário cadastrado com sucesso!');
         this.router.navigate(['clients/list']);
       },
-      error: (err) => {
-        console.error('Erro na requisição HTTP:', err);
-        const backendMessage =
-          err?.error?.MESSAGE || err?.error?.detail || 'Erro ao cadastrar o cliente.';
-        this.snackBarManager.show(backendMessage);
+      error: (error: HttpErrorResponse) => {
+        if (error.status === 0) {
+          this.dialogManager.showYesNoDialog(YesNoDialogComponent, {
+            title: 'Servidor Indisponível',
+            content:
+              'O sistema não conseguiu se comunicar com o servidor. Deseja tentar novamente?.'
+          }).subscribe((retry) => {
+            if(retry) {
+              this.onSubmitClient(value);
+            }
+          });
+        } else {
+          this.snackBarManager.show(error.error?.message || 'Erro ao cadastrar cliente!');
+        }
       },
     });
   }
