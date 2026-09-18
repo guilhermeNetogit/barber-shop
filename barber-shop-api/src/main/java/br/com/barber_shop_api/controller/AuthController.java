@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.barber_shop_api.entities.UserEntity;
 import br.com.barber_shop_api.repository.IUserRepository;
+import br.com.barber_shop_api.security.JwtService;
 
 @RestController
 @RequestMapping("/auth")
@@ -16,26 +17,32 @@ public class AuthController {
 
 	public final IUserRepository userRepository;
 	public final PasswordEncoder passwordEncoder;
+	public final JwtService jwtService;
 	
-	public AuthController(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public AuthController(IUserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.jwtService = jwtService;
 	}
 	
 	@PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        UserEntity user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        var userOpt = userRepository.findByEmail(request.email());
 
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            return ResponseEntity.status(401).body("Usuário ou senha inválidos");
+        if (userOpt.isEmpty() || !passwordEncoder.matches(request.password(), userOpt.get().getPassword())) {
+            return ResponseEntity.status(401).body(new ErrorResponse("Usuário ou senha inválidos"));
         }
 
-        return ResponseEntity.ok("Login efetuado com sucesso!");
+        UserEntity user = userOpt.get();
+        String token = jwtService.generateToken(user.getEmail(), user.getRole());
+
+        return ResponseEntity.ok(new LoginResponse(token, user.getName(), user.getEmail(), user.getRole()));
     }
 	
 	public record LoginRequest(String email, String password) {}
-	
+	public record LoginResponse(String token, String name, String email, String role) {}
+    public record ErrorResponse(String message) {}
+    
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
 	    UserEntity user = new UserEntity();
