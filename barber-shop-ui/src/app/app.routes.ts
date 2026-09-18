@@ -8,7 +8,7 @@ import { LoginComponent } from './login/login.component';
 import { MainLayoutComponent } from './header/main-layout/main-layout.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent, data: { title: 'Login' } },
+  { path: 'login', component: LoginComponent },
   {
     path: '',
     component: MainLayoutComponent,

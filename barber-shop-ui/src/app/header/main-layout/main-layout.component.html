@@ -3,9 +3,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 
 <mat-toolbar>
-  <button matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
+  <button matIconButton class="example-icon" [matMenuTriggerFor]="userMenu" aria-label="Menu do Usuário">
     <mat-icon>menu</mat-icon>
   </button>
+
+  <!-- Menu Dropdown -->
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="editProfile()">
+        <mat-icon>manage_accounts</mat-icon>
+        <span>Alterar Dados</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon color="warn">logout</mat-icon>
+        <span>Sair</span>
+      </button>
+    </mat-menu>
+
   <img src="../../public/assets/images/logo-barber-shop.png" alt="Barber Shop Logo" class="logo-img">
   <span class="title">Barber Shop</span>
   <span class="example-spacer"></span>
@@ -19,4 +33,6 @@
 
 <app-card-header>{{title()}}</app-card-header>
 <app-menu-bar></app-menu-bar>
-<router-outlet></router-outlet>
+<main>
+  <router-outlet></router-outlet>
+</main>

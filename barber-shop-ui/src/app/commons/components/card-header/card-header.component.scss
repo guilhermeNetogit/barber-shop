@@ -10,7 +10,7 @@
 }
 
 .card-title {
-    padding-top: 0.5rem;
-    padding-bottom: 1.5rem;
-    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;     /* Alinha o texto verticalmente no centro */
+    height: 60px;            /* Exemplo: o elemento precisa de uma altura (height) definida para que o centro vertical faça sentido */
 }
