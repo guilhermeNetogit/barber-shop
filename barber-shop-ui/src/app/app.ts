@@ -1,23 +1,20 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, Subscription } from 'rxjs';
-import { CardHeaderComponent } from './commons/components/card-header/card-header.component';
-import { MenuBarComponent } from './commons/components/menu-bar/menu-bar.component';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CardHeaderComponent, MenuBarComponent, MatToolbarModule,
-  MatIconModule,
-  MatButtonModule
-  ],
+  imports: [RouterOutlet, MatToolbarModule,
+    MatIconModule,
+    MatButtonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App implements OnInit, OnDestroy {
-  title = signal('barber-shop-ui');
+  title = signal<string>('barber-shop-ui');
 
   private routeSubscription?: Subscription;
 
