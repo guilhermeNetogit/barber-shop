@@ -1,46 +1,10 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter, map, Subscription } from 'rxjs';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatToolbarModule,
-    MatIconModule,
-    MatButtonModule],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit, OnDestroy {
-  title = signal<string>('barber-shop-ui');
-
-  private routeSubscription?: Subscription;
-
-  constructor(
-    private readonly router: Router,
-    private readonly activatedRoute: ActivatedRoute,
-  ) {}
-
-  ngOnDestroy(): void {
-    if (this.routeSubscription) {
-      this.routeSubscription.unsubscribe();
-    }
-  }
-
-  ngOnInit(): void {
-    this.routeSubscription = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(() => this.getRouteTitle(this.activatedRoute)),
-    ).subscribe(title => this.title.set(title));
-  }
-
-  private getRouteTitle(route: ActivatedRoute): string {
-    let child = route;
-    while (child.firstChild) {
-      child = child.firstChild;
-    }
-    return child.snapshot.data['title'] || 'Default Title';
-  }
-}
+export class App {}

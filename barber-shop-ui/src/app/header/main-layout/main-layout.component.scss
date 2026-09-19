@@ -1,0 +1,56 @@
+.mat-toolbar {
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  border: 1px solid var(--mat-sys-secondary);
+
+  /* Botões de ícones com estado transparente e efeito hover suave */
+  button[matIconButton],
+  button[mat-icon-button],
+  .mat-mdc-icon-button {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border-radius: 50% !important; /* Mantém o foco/hover arredondado */
+    transition: background-color 0.2s ease-in-out !important; /* Suaviza a transição */
+
+    /* Desativa as camadas padrão de toque/ripple do Angular Material MDC */
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-mdc-button-touch-target {
+      display: none !important;
+    }
+
+    /* Leve fundo branco semi-transparente ao passar o mouse */
+    &:hover {
+      cursor: pointer;
+    }
+
+    /* Leve destaque extra ao clicar ou focar */
+    &:active,
+    &:focus-visible {
+      background-color: rgba(255, 255, 255, 0.25) !important;
+    }
+  }
+}
+
+.title {
+  font-family: "Lobster", sans-serif;
+  font-weight: 400;
+  font-size: xx-large;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+.example-icon {
+  color: var(--mat-sys-on-primary);
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  margin-right: 12px;
+  object-fit: contain;
+}

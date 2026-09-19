@@ -43,7 +43,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.error || 'Falha ao realizar login. Verifique suas credenciais.';
+        this.errorMessage = err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.';
       }
     });
   }
