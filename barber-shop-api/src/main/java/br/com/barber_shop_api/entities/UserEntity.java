@@ -26,7 +26,7 @@ public class UserEntity {
 	@Column(name = "CODUSU")
 	private Long id;
 
-	@Column(name = "NOMEUSU", nullable = false)
+	@Column(name = "NOMEUSU", nullable = false, unique = true)
 	private String name;
 
 	@Column(name = "CPF", nullable = false, unique = true, length = 11)
