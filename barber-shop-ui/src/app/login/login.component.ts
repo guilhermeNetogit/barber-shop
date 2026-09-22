@@ -3,12 +3,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from './service/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [MatCardModule, MatIconModule, MatInputModule, ReactiveFormsModule],
+  imports: [MatCardModule, MatIconModule, MatInputModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -24,7 +24,7 @@ export class LoginComponent {
     private router: Router,
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      login: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required]],
     });
   }
@@ -43,8 +43,9 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.';
-      }
+        this.errorMessage =
+          err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.';
+      },
     });
   }
 }
