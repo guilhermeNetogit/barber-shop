@@ -26,7 +26,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   ) {}
 
   editProfile(): void {
-    console.log('Alterar dados clicado!');
+    this.router.navigate(['/profile/edit']);
   }
 
   logout(): void {

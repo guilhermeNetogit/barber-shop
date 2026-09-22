@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
 export interface LoginRequest {
-  email: string;
+  login: string;
   password: string;
 }
 
@@ -14,6 +14,13 @@ export interface LoginResponse {
   role: string;
 }
 
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  cpf: string;
+  password: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -22,6 +29,10 @@ export class AuthService {
   private tokenKey = 'token';
 
   constructor(private http: HttpClient) {}
+
+  register(data: RegisterRequest): Observable<string> {
+    return this.http.post(`${this.apiUrl}/register`, data, { responseType: 'text' });
+  }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(

@@ -6,9 +6,12 @@ import { SchedulesMonthComponent } from './schedules/schedules-month/schedules-m
 import { AuthGuard } from './guards/auth.guard';
 import { LoginComponent } from './login/login.component';
 import { MainLayoutComponent } from './header/main-layout/main-layout.component';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
+import { RegisterComponent } from './register/register.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent, data: { title: 'Cadastro' } },
   {
     path: '',
     component: MainLayoutComponent,
@@ -35,6 +38,11 @@ export const routes: Routes = [
         component: SchedulesMonthComponent,
         data: { title: 'Agendamentos' },
       },
+      {
+        path: 'profile/edit',
+        component: EditProfileComponent,
+        data: { title: 'Meus Dados' }
+      }
     ],
   },
   { path: '**', redirectTo: 'login' },

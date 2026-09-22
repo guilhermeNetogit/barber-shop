@@ -1,0 +1,83 @@
+<div class="edit-profile-container">
+  <mat-card>
+    <mat-card-content>
+      @if (isLoading()) {
+        <p>Carregando...</p>
+      } @else {
+        <form [formGroup]="profileForm" (ngSubmit)="salvarAlteracoes()">
+
+          <mat-form-field appearance="outline" class="form-field-custom">
+            <mat-label>Nome Completo</mat-label>
+            <input matInput formControlName="name" type="text" />
+            @if (profileForm.get('name')?.hasError('required')) {
+              <mat-error>Informe seu nome.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-custom">
+            <mat-label>E-mail</mat-label>
+            <input matInput formControlName="email" type="email" />
+            @if (profileForm.get('email')?.hasError('required')) {
+              <mat-error>Informe o e-mail.</mat-error>
+            }
+            @if (profileForm.get('email')?.hasError('email')) {
+              <mat-error>E-mail inválido.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-custom">
+            <mat-label>CPF</mat-label>
+            <input matInput formControlName="cpf" type="text" />
+            @if (profileForm.get('cpf')?.hasError('required')) {
+              <mat-error>Informe o CPF.</mat-error>
+            }
+          </mat-form-field>
+
+          <hr />
+
+          <mat-form-field appearance="outline" class="form-field-custom">
+            <mat-label>Senha Atual (obrigatória para salvar)</mat-label>
+            <input matInput formControlName="senhaAtual" [type]="ocultarSenhaAtual ? 'password' : 'text'" />
+            <button mat-icon-button matSuffix type="button" (click)="ocultarSenhaAtual = !ocultarSenhaAtual">
+              <mat-icon>{{ ocultarSenhaAtual ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (profileForm.get('senhaAtual')?.hasError('required')) {
+              <mat-error>Informe sua senha atual.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-custom">
+            <mat-label>Nova Senha (deixe em branco para não alterar)</mat-label>
+            <input matInput formControlName="novaSenha" [type]="ocultarNovaSenha ? 'password' : 'text'" />
+            <button mat-icon-button matSuffix type="button" (click)="ocultarNovaSenha = !ocultarNovaSenha">
+              <mat-icon>{{ ocultarNovaSenha ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (profileForm.get('novaSenha')?.hasError('minlength')) {
+              <mat-error>Mínimo de 6 caracteres.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-custom">
+            <mat-label>Confirmar Nova Senha</mat-label>
+            <input matInput formControlName="confirmarNovaSenha" [type]="ocultarNovaSenha ? 'password' : 'text'" />
+            @if (profileForm.hasError('senhasDiferentes')) {
+              <mat-error>As senhas não coincidem.</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || isSubmitting()">
+              <mat-icon>save</mat-icon>
+              Salvar
+            </button>
+
+            <button mat-stroked-button type="button" (click)="cancelar()">
+              <mat-icon>cancel</mat-icon>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

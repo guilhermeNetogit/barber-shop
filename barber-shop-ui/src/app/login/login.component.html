@@ -11,14 +11,14 @@
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>E-mail</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="seu@email.com">
-          <mat-icon matSuffix>email</mat-icon>
-          @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
-            <mat-error>E-mail é obrigatório</mat-error>
+          <mat-label>E-mail ou Usuário</mat-label>
+          <input matInput type="text" formControlName="login" placeholder="seu@email.com ou usuário">
+          <mat-icon matSuffix>person</mat-icon>
+          @if (loginForm.get('login')?.hasError('required') && loginForm.get('login')?.touched) {
+            <mat-error>Informe o e-mail ou usuário</mat-error>
           }
-          @if (loginForm.get('email')?.hasError('email')) {
-            <mat-error>E-mail inválido</mat-error>
+          @if (loginForm.get('login')?.hasError('minlength')) {
+            <mat-error>E-mail ou usuário inválido</mat-error>
           }
         </mat-form-field>
 
@@ -37,6 +37,10 @@
         <button mat-raised-button color="primary" class="full-width btn-login" type="submit" [disabled]="loading || loginForm.invalid">
           {{ loading ? 'Acessando...' : 'Acessar' }}
         </button>
+
+        <p class="register-link">
+          Não tem uma conta? <a routerLink="/register">Cadastre-se</a>
+        </p>
       </form>
     </mat-card-content>
   </mat-card>
