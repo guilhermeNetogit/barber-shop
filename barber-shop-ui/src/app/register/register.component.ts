@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -24,9 +24,9 @@ export class RegisterComponent {
   registerForm: FormGroup;
   hidePassword = true;
   hideConfirmPassword = true;
-  errorMessage = '';
-  successMessage = '';
-  loading = false;
+  errorMessage = signal('');
+  successMessage = signal('');
+  loading = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -37,7 +37,7 @@ export class RegisterComponent {
       {
         name: ['', [Validators.required, Validators.minLength(3)]],
         email: ['', [Validators.required, Validators.email]],
-        cpf: ['', [Validators.required, Validators.minLength(11)]],
+        cpf: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
         password: ['', [Validators.required, Validators.minLength(6)]],
         confirmPassword: ['', [Validators.required]],
       },
@@ -54,21 +54,21 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.registerForm.invalid) return;
 
-    this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     const { name, email, cpf, password } = this.registerForm.value;
 
     this.authService.register({ name, email, cpf, password }).subscribe({
       next: () => {
-        this.loading = false;
-        this.successMessage = 'Cadastro realizado com sucesso! Redirecionando...';
+        this.loading.set(false);
+        this.successMessage.set('Cadastro realizado com sucesso! Redirecionando...');
         setTimeout(() => this.router.navigate(['/login']), 1500);
       },
       error: (err) => {
-        this.loading = false;
-        this.errorMessage = err.error?.message || 'Erro ao cadastrar. Tente novamente.';
+        this.loading.set(false);
+        this.errorMessage.set(err.error?.message || 'Erro ao cadastrar. Tente novamente.');
       },
     });
   }

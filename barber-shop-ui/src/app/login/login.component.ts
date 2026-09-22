@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,8 +15,8 @@ import { AuthService } from './service/auth.service';
 export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
-  errorMessage: string = '';
-  loading = false;
+  errorMessage = signal('');
+  loading = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -32,19 +32,20 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.loginForm.invalid) return;
 
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
-        this.loading = false;
+        this.loading.set(false);
         // Redireciona para a página de agendamentos mensais
         this.router.navigate(['/schedules/month']);
       },
       error: (err) => {
-        this.loading = false;
-        this.errorMessage =
-          err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.';
+        this.loading.set(false);
+        this.errorMessage.set(
+          err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.',
+        );
       },
     });
   }
