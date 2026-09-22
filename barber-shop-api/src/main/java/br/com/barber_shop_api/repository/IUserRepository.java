@@ -12,6 +12,8 @@ import br.com.barber_shop_api.entities.UserEntity;
 @Repository
 public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
+	Optional<UserEntity> findByCpf(final String cpf);
+	
 	Optional<UserEntity> findByEmail(final String email);
 	
 	Optional<UserEntity> findByName(final String name);
