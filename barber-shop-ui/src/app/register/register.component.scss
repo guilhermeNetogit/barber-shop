@@ -53,10 +53,10 @@
   margin-bottom: 12px;
 }
 
-.btn-register {
-  background-color: #005cbb;
+.btn-register.mat-mdc-raised-button {
+  background-color: #005cbb !important;
   border-radius: 8px;
-  color: white;
+  color: white !important;
   padding: 8px 0;
   font-size: 16px;
   margin-top: 8px;

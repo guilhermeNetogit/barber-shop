@@ -50,6 +50,11 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+		
+		if (userRepository.findByCpf(request.cpf()).isPresent()) {
+			return ResponseEntity.status(409).body(new ErrorResponse("CPF já cadastrado"));
+		}
+		
 		if (userRepository.findByEmail(request.email()).isPresent()) {
 			return ResponseEntity.status(409).body(new ErrorResponse("E-mail já cadastrado"));
 		}
@@ -67,9 +72,13 @@ public class AuthController {
 		user.setActive(true);
 
 		userRepository.save(user);
-		return ResponseEntity.ok("Usuário cadastrado com sucesso!");
+		return ResponseEntity.ok(new SuccessResponse("Usuário cadastrado com sucesso!"));
 	}
 
 	public record RegisterRequest(String name, String email, String cpf, String password) {
+	}
+	
+
+	public record SuccessResponse(String message) {
 	}
 }

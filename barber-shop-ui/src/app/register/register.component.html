@@ -62,15 +62,15 @@
           }
         </mat-form-field>
 
-        @if (errorMessage) {
-          <p class="error-message">{{ errorMessage }}</p>
+        @if (errorMessage()) {
+          <p class="error-message">{{ errorMessage() }}</p>
         }
-        @if (successMessage) {
-          <p class="success-message">{{ successMessage }}</p>
+        @if (successMessage()) {
+          <p class="success-message">{{ successMessage() }}</p>
         }
 
-        <button mat-raised-button color="primary" class="full-width btn-register" type="submit" [disabled]="loading || registerForm.invalid">
-          {{ loading ? 'Cadastrando...' : 'Cadastrar' }}
+        <button mat-raised-button color="primary" class="full-width btn-register" type="submit" [disabled]="loading() || registerForm.invalid">
+          {{ loading() ? 'Cadastrando...' : 'Cadastrar' }}
         </button>
 
         <p class="login-link">

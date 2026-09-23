@@ -15,10 +15,10 @@
           <input matInput type="text" formControlName="login" placeholder="seu@email.com ou usuário">
           <mat-icon matSuffix>person</mat-icon>
           @if (loginForm.get('login')?.hasError('required') && loginForm.get('login')?.touched) {
-            <mat-error>Informe o e-mail ou usuário</mat-error>
+          <mat-error>Informe o e-mail ou usuário</mat-error>
           }
           @if (loginForm.get('login')?.hasError('minlength')) {
-            <mat-error>E-mail ou usuário inválido</mat-error>
+          <mat-error>E-mail ou usuário inválido</mat-error>
           }
         </mat-form-field>
 
@@ -28,14 +28,18 @@
           <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
             <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
           </button>
+          @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+          <mat-error>Informe a senha</mat-error>
+          }
         </mat-form-field>
 
-        @if (errorMessage) {
-          <p class="error-message">{{ errorMessage }}</p>
+        @if (errorMessage()) {
+        <p class="error-message">{{ errorMessage() }}</p>
         }
 
-        <button mat-raised-button color="primary" class="full-width btn-login" type="submit" [disabled]="loading || loginForm.invalid">
-          {{ loading ? 'Acessando...' : 'Acessar' }}
+        <button mat-raised-button color="primary" class="full-width btn-login" type="submit"
+          [disabled]="loading() || loginForm.invalid">
+          {{ loading() ? 'Acessando...' : 'Acessar' }}
         </button>
 
         <p class="register-link">
