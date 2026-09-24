@@ -4,6 +4,7 @@ import {
   Component,
   EventEmitter,
   Inject,
+  Injectable,
   Input,
   OnChanges,
   OnDestroy,
@@ -14,7 +15,7 @@ import {
 import { FormControl, FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,6 +37,35 @@ import {
   SelectClientModel,
 } from '../../schedule.models';
 
+@Injectable()
+export class CustomDateAdapter extends NativeDateAdapter {
+  override format(date: Date, displayFormat: Object): string {
+    if (displayFormat === 'monthYearLabel') {
+      const monthName = date.toLocaleString('pt-BR', { month: 'long' });
+      const year = date.getFullYear();
+      const formattedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+      return formattedMonth + '/' + year;
+    }
+    return super.format(date, displayFormat);
+  }
+}
+
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+    timeInput: 'HH:mm',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'monthYearLabel', // Ativa a formatação do nosso CustomDateAdapter
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'monthYearLabel',
+    timeInput: 'HH:mm',
+    timeOptionLabel: 'HH:mm',
+  },
+};
+
 @Component({
   selector: 'app-schedule-calendar',
   imports: [
@@ -56,7 +86,10 @@ import {
   templateUrl: './schedule-calendar.component.html',
   styleUrl: './schedule-calendar.component.scss',
   providers: [
-    provideNativeDateAdapter(),
+    CustomDateAdapter,
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
     {
       provide: SERVICES_TOKEN.DIALOG,
       useClass: DialogManagerService,
