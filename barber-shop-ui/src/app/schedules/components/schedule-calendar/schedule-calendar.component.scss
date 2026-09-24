@@ -58,3 +58,12 @@ table {
 mat-paginator {
   width: 100%;
 }
+
+/* Esconde o texto da célula do mês sem destruir o espaço da coluna */
+::ng-deep .mat-calendar-body-label {
+  visibility: hidden !important;
+}
+
+::ng-deep .mat-calendar-period-button {
+  text-transform: capitalize !important;
+}

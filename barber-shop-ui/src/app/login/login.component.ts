@@ -43,9 +43,16 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(
-          err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.',
-        );
+
+        if (err.status === 0) {
+          this.errorMessage.set(
+            'Não foi possível conectar ao servidor. Aguarde um instante e tente novamente mais tarde.',
+          );
+        } else {
+          this.errorMessage.set(
+            err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.',
+          );
+        }
       },
     });
   }
