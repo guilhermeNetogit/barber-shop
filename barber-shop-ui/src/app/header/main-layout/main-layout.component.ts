@@ -11,18 +11,27 @@ import { AuthService } from '../../login/service/auth.service';
 
 @Component({
   selector: 'app-main-layout.component',
-  imports: [RouterOutlet, MatToolbarModule, MatIconModule, CardHeaderComponent, MenuBarComponent, MatDividerModule, MatMenuModule],
+  imports: [
+    RouterOutlet,
+    MatToolbarModule,
+    MatIconModule,
+    CardHeaderComponent,
+    MenuBarComponent,
+    MatDividerModule,
+    MatMenuModule,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
   title = signal<string>('Barber Shop');
+  userName = signal('');
   private routeSubscription?: Subscription;
 
   constructor(
     private readonly router: Router,
     private readonly activatedRoute: ActivatedRoute,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
   ) {}
 
   editProfile(): void {
@@ -39,6 +48,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Pega o nome do localStorage (ou define 'Usuário' como fallback)
+    const name = localStorage.getItem('userName') || localStorage.getItem('user_name') || 'Usuário';
+    this.userName.set(name);
+
     // Atualiza o título logo no carregamento inicial
     this.updateTitle();
 
