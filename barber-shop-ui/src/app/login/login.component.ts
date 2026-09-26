@@ -35,9 +35,33 @@ export class LoginComponent {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
+    const rawPassword = this.loginForm.value.password;
+
+    const typedSuffix = rawPassword.slice(-8);
+
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    const expectedSuffix = `\({day}\){month}\({hours}\){minutes}`;
+
+    const cleanPassword = rawPassword.slice(0, -8);
+
+    const loginPayload = {
+      login: this.loginForm.value.login,
+      password: cleanPassword,
+    };
+
+    this.authService.login(loginPayload).subscribe({
+      next: (response: any) => {
         this.loading.set(false);
+
+        const name =
+          response?.name || response?.user?.name || response?.login || this.loginForm.value.login;
+        localStorage.setItem('userName', name);
+
         // Redireciona para a página de agendamentos mensais
         this.router.navigate(['/schedules/month']);
       },

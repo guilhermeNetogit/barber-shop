@@ -60,7 +60,7 @@ export class EditProfileComponent implements OnInit {
         email: ['', [Validators.required, Validators.email]],
         cpf: ['', [Validators.required]],
         senhaAtual: ['', [Validators.required]],
-        novaSenha: ['', [Validators.minLength(6)]],
+        novaSenha: [''],
         confirmarNovaSenha: [''],
       },
       { validators: this.senhasIguaisValidator },
@@ -101,7 +101,19 @@ export class EditProfileComponent implements OnInit {
     }
 
     const { name, email, cpf, senhaAtual, novaSenha } = this.profileForm.value;
+
     const emailAlterado = email.trim().toLowerCase() !== this.profileForm.get('email')?.value;
+
+    // Remove os 8 dígitos de sufixo caso o usuário tenha digitado a senha atual com DDMMHHmm
+  const cleanSenhaAtual = senhaAtual && senhaAtual.length > 8
+    ? senhaAtual.slice(0, -8)
+    : senhaAtual;
+
+  // Garante que a nova senha seja enviada limpa caso venha com sufixo por engano
+  const rawNovaSenha = novaSenha?.trim();
+  const cleanNovaSenha = rawNovaSenha && rawNovaSenha.length > 8
+    ? rawNovaSenha.slice(0, -8)
+    : rawNovaSenha;
 
     this.isSubmitting.set(true);
 
@@ -110,8 +122,8 @@ export class EditProfileComponent implements OnInit {
         name: name.trim(),
         email: email.trim(),
         cpf: cpf.trim(),
-        currentPassword: senhaAtual,
-        newPassword: novaSenha?.trim() || undefined,
+        currentPassword: cleanSenhaAtual,
+        newPassword: cleanNovaSenha?.trim() || undefined,
       })
       .subscribe({
         next: () => {
@@ -119,7 +131,7 @@ export class EditProfileComponent implements OnInit {
           this.snackBar.open('Dados atualizados com sucesso!', 'OK', { duration: 3000 });
 
           // e-mail ou senha mudaram -> o token atual pode ficar desatualizado, força novo login
-          if (email !== this.profileForm.value.email || novaSenha) {
+          if (email !== this.profileForm.value.email || cleanNovaSenha) {
             this.authService.logout();
             this.router.navigate(['/login']);
             return;

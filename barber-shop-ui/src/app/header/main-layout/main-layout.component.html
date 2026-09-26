@@ -9,6 +9,10 @@
 
   <!-- Menu Dropdown -->
     <mat-menu #userMenu="matMenu">
+      <button mat-menu-item>
+        <mat-icon>account_circle</mat-icon>
+        <span>{{userName()}}</span>
+      </button>
       <button mat-menu-item (click)="editProfile()">
         <mat-icon>manage_accounts</mat-icon>
         <span>Alterar Dados</span>
