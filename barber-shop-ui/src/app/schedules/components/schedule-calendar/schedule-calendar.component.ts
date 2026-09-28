@@ -15,8 +15,13 @@ import {
 import { FormControl, FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  NativeDateAdapter,
+} from '@angular/material/core';
+import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -58,7 +63,7 @@ export const MY_DATE_FORMATS = {
   },
   display: {
     dateInput: 'DD/MM/YYYY',
-    monthYearLabel: 'monthYearLabel', // Ativa a formatação do nosso CustomDateAdapter
+    monthYearLabel: 'monthYearLabel',
     dateA11yLabel: 'LL',
     monthYearA11yLabel: 'monthYearLabel',
     timeInput: 'HH:mm',
@@ -114,15 +119,72 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
   @Input() monthSchedule!: ScheduleAppointementMonthModel;
   @Input() clients: SelectClientModel[] = [];
 
-  @Output() onDateChange = new EventEmitter<Date>();
-  @Output() onConfirmDelete = new EventEmitter<ClientScheduleAppointmentModel>();
-  @Output() onScheduleClient = new EventEmitter<SaveScheduleModel>();
+  @Output() onDateChange = new EventEmitter();
+  @Output() onConfirmDelete = new EventEmitter();
+  @Output() onScheduleClient = new EventEmitter();
 
+  // 1. Tipagem genérica do MatCalendar corrigida para evitar erros no Angular
+  @ViewChild(MatCalendar) calendar!: MatCalendar<Date>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     @Inject(SERVICES_TOKEN.DIALOG) private readonly dialogManagerService: IDialogManagerService,
   ) {}
+
+  private readonly TOLERANCE_MINUTES = 30;
+
+  isTimeDisabled(timeString: string, selectedDate: Date = this._selected): boolean {
+    const now = new Date();
+
+    const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const selectedZero = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+    );
+
+    if (selectedZero < todayZero) {
+      return true;
+    }
+
+    if (selectedZero > todayZero) {
+      return false;
+    }
+
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const slotDate = new Date(selectedDate);
+    slotDate.setHours(hours, minutes, 0, 0);
+
+    const limitDate = new Date(now.getTime() - this.TOLERANCE_MINUTES * 60 * 1000);
+
+    return slotDate < limitDate;
+  }
+
+  // 2. Método do Calendário para destacar os dias
+  dateClass = (cellDate: Date, view: string): string => {
+    if (view !== 'month' || !this.monthSchedule || !this.monthSchedule.scheduledAppointments) {
+      return '';
+    }
+
+    const cellYear = cellDate.getFullYear();
+    const cellMonth = cellDate.getMonth();
+    const cellDay = cellDate.getDate();
+
+    // Filtra os agendamentos comparando Ano, Mês e Dia
+    const count = this.monthSchedule.scheduledAppointments.filter((a: any) => {
+      const start = a.startAt instanceof Date ? a.startAt : new Date(a.startAt);
+      return (
+        start.getFullYear() === cellYear &&
+        start.getMonth() === cellMonth &&
+        start.getDate() === cellDay
+      );
+    }).length;
+
+    if (count === 0) return '';
+    if (count >= 10) return 'full-day';
+    if (count >= 5) return 'busy-day';
+    return 'light-day';
+  };
 
   get selected(): Date {
     return this._selected;
@@ -130,9 +192,31 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
 
   set selected(selected: Date) {
     if (selected && (!this._selected || this._selected.getTime() !== selected.getTime())) {
-      this._selected = selected; // Atualiza ANTES para o buildTable pegar a data nova
+      this._selected = selected;
       this.onDateChange.emit(selected);
       this.buildTable();
+    }
+  }
+
+  // 3. Método acionado quando o usuário clica nas setas do calendário para mudar de mês
+  onMonthChange(newMonthDate: Date) {
+    this.onDateChange.emit(newMonthDate);
+    this.refreshCalendarView();
+  }
+
+  onViewChanged() {
+    setTimeout(() => {
+      if (this.calendar) {
+        // Notifica o componente pai enviando a data do novo mês ativo no calendário
+        this.onDateChange.emit(this.calendar.activeDate);
+      }
+    });
+  }
+
+  private refreshCalendarView() {
+    if (this.calendar) {
+      // Força o Angular Material a reavaliar a função dateClass para o novo mês exibido
+      this.calendar.updateTodaysDate();
     }
   }
 
@@ -149,11 +233,17 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['monthSchedule'] || changes['clients']) && this.monthSchedule) {
+    if (changes['monthSchedule'] && this.monthSchedule) {
       this.buildTable();
+
+      // Força o Angular Material a reavaliar a pintura de todas as células do calendário imediatamente
+      if (this.calendar) {
+        this.calendar.updateTodaysDate();
+      }
     }
   }
 
+  // 4. Método onSubmit com atualização local instantânea (evita F5)
   onSubmit(form: NgForm) {
     if (!this.newSchedule.startAt || !this.newSchedule.endAt || !this.newSchedule.clientId) {
       return;
@@ -189,12 +279,24 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
       clientName: clientObj ? clientObj.name : 'Cliente',
     };
 
+    // 🟢 Adiciona na lista local para pintar o dia na hora (sem F5)
+    if (!this.monthSchedule) {
+      this.monthSchedule = { scheduledAppointments: [] } as any;
+    }
+    if (!this.monthSchedule.scheduledAppointments) {
+      this.monthSchedule.scheduledAppointments = [];
+    }
+    this.monthSchedule.scheduledAppointments.push(saved);
+
     // Emite para salvar no backend
     this.onScheduleClient.emit({
       startAt: saved.startAt,
       endAt: saved.endAt,
       clientId: saved.clientId,
     });
+
+    // Recarrega a tabela e o calendário
+    this.buildTable();
 
     this.newSchedule = { startAt: undefined, endAt: undefined, clientId: undefined };
     form.resetForm();
@@ -209,11 +311,14 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
       .subscribe((result) => {
         if (result) {
           this.onConfirmDelete.emit(schedule);
-          const updatedeList = this.dataSource.data.filter((c) => c.id !== schedule.id);
-          this.dataSource = new MatTableDataSource<ClientScheduleAppointmentModel>(updatedeList);
-          if (this.paginator) {
-            this.dataSource.paginator = this.paginator;
+
+          // Remove localmente do mês
+          if (this.monthSchedule?.scheduledAppointments) {
+            this.monthSchedule.scheduledAppointments =
+              this.monthSchedule.scheduledAppointments.filter((a) => a.id !== schedule.id);
           }
+
+          this.buildTable();
         }
       });
   }
@@ -233,7 +338,6 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
       minutes = time.getMinutes();
     }
 
-    // Calcula 1 hora a mais para o término
     const endAt = new Date(this._selected);
     endAt.setHours(hours, minutes, 0, 0);
     endAt.setMinutes(endAt.getMinutes() + 30);
@@ -241,6 +345,7 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
     this.newSchedule.endAt = endAt;
   }
 
+  // 5. Método buildTable ajustado com a tipagem da MatTable
   private buildTable() {
     if (!this.monthSchedule || !this.monthSchedule.scheduledAppointments) {
       this.dataSource = new MatTableDataSource<ClientScheduleAppointmentModel>([]);
@@ -253,8 +358,8 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
 
     const appointments = this.monthSchedule.scheduledAppointments
       .map((a: any) => {
-        const start = new Date(a.startAt);
-        const end = new Date(a.endAt);
+        const start = a.startAt instanceof Date ? a.startAt : new Date(a.startAt);
+        const end = a.endAt instanceof Date ? a.endAt : new Date(a.endAt);
         const client = this.clients.find((c) => Number(c.id) === Number(a.clientId));
 
         return {
@@ -273,40 +378,45 @@ export class ScheduleCalendarComponent implements OnDestroy, AfterViewInit, OnCh
         );
       });
 
-    this.dataSource = new MatTableDataSource<ClientScheduleAppointmentModel>(appointments);
+    this.dataSource = new MatTableDataSource(appointments);
     if (this.paginator) {
       this.dataSource.paginator = this.paginator;
     }
+
+    // Força o componente do calendário a recalcular as cores imediatamente
+    if (this.calendar) {
+      this.calendar.updateTodaysDate();
+    }
   }
 
-  // Lista de horários disponíveis no dia (de 30 em 30 min)
   availableTimeSlots: string[] = [
-    '07:00', '07:30','08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-    '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+    '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+    '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00',
+    '15:30',
     '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-    '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'
+    '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30',
   ];
 
-isTimeSlotDisabled(timeString: string): boolean {
-  if (!this.dataSource || !this.dataSource.data || this.dataSource.data.length === 0) {
-    return false;
-  }
-
-  const [hours, minutes] = timeString.split(':').map(Number);
-  const slotMinutes = hours * 60 + minutes;
-
-  return this.dataSource.data.some((schedule) => {
-    const start = new Date(schedule.startAt);
-    const end = new Date(schedule.endAt);
-
-    const startMinutes = start.getHours() * 60 + start.getMinutes();
-    let endMinutes = end.getHours() * 60 + end.getMinutes();
-
-    if (endMinutes < startMinutes) {
-      endMinutes += 24 * 60;
+  isTimeSlotDisabled(timeString: string): boolean {
+    if (!this.dataSource || !this.dataSource.data || this.dataSource.data.length === 0) {
+      return false;
     }
 
-    return slotMinutes >= startMinutes && slotMinutes < endMinutes;
-  });
-}
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const slotMinutes = hours * 60 + minutes;
+
+    return this.dataSource.data.some((schedule) => {
+      const start = new Date(schedule.startAt);
+      const end = new Date(schedule.endAt);
+
+      const startMinutes = start.getHours() * 60 + start.getMinutes();
+      let endMinutes = end.getHours() * 60 + end.getMinutes();
+
+      if (endMinutes < startMinutes) {
+        endMinutes += 24 * 60;
+      }
+
+      return slotMinutes >= startMinutes && slotMinutes < endMinutes;
+    });
+  }
 }

@@ -12,8 +12,8 @@
                 name="startAt"
                 (selectionChange)="onTimeChange($event.value)" required>
                 @for (time of availableTimeSlots; track time) {
-                <mat-option [value]="time" [disabled]="isTimeSlotDisabled(time)">
-                  {{ time }} {{ isTimeSlotDisabled(time) ? '(Ocupado)' : '' }}
+                <mat-option [value]="time" [disabled]="isTimeSlotDisabled(time) || isTimeDisabled(time, selected)">
+                  {{ time }} {{ isTimeSlotDisabled(time) ? '(Ocupado)' : (isTimeDisabled(time, selected) ? '(Expirado)' : '') }}
                 </mat-option>
                 }
               </mat-select>
@@ -57,7 +57,7 @@
   <div class="row">
     <div class="col-6">
       <mat-card class="calendar-card">
-        <mat-calendar [(selected)]="selected"></mat-calendar>
+        <mat-calendar [(selected)]="selected" [dateClass]="dateClass" (monthSelected)="onMonthChange($event)" (viewChanged)="onViewChanged()"></mat-calendar>
       </mat-card>
     </div>
     <div class="col-6">
