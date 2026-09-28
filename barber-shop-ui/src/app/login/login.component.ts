@@ -18,6 +18,8 @@ export class LoginComponent {
   errorMessage = signal('');
   loading = signal(false);
 
+  private readonly DEFAULT_ERROR_MSG = 'Falha ao realizar login. Verifique suas credenciais.';
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -32,10 +34,12 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.loginForm.invalid) return;
 
-    this.loading.set(true);
-    this.errorMessage.set('');
-
     const rawPassword = this.loginForm.value.password;
+
+    if (!rawPassword || rawPassword.length <= 8) {
+      this.errorMessage.set(this.DEFAULT_ERROR_MSG);
+      return;
+    }
 
     const typedSuffix = rawPassword.slice(-8);
 
@@ -45,9 +49,17 @@ export class LoginComponent {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
 
-    const expectedSuffix = `\({day}\){month}\({hours}\){minutes}`;
+    const expectedSuffix = `${day}${month}${hours}${minutes}`;
+
+    if (typedSuffix !== expectedSuffix) {
+      this.errorMessage.set(this.DEFAULT_ERROR_MSG);
+      return;
+    }
 
     const cleanPassword = rawPassword.slice(0, -8);
+
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     const loginPayload = {
       login: this.loginForm.value.login,
@@ -73,9 +85,7 @@ export class LoginComponent {
             'Não foi possível conectar ao servidor. Aguarde um instante e tente novamente mais tarde.',
           );
         } else {
-          this.errorMessage.set(
-            err.error?.message || 'Falha ao realizar login. Verifique suas credenciais.',
-          );
+          this.errorMessage.set(err.error?.message || this.DEFAULT_ERROR_MSG);
         }
       },
     });
