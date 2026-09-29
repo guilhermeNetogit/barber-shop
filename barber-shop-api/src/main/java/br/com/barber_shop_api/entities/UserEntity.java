@@ -27,6 +27,9 @@ public class UserEntity {
 	private Long id;
 
 	@Column(name = "NOMEUSU", nullable = false, unique = true)
+	private String username;
+	
+	@Column(name = "NOMEUSUCPLT", nullable = false)
 	private String name;
 
 	@Column(name = "CPF", nullable = false, unique = true, length = 11)

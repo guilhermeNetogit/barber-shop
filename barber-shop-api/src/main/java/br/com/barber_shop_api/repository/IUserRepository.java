@@ -16,8 +16,8 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 	
 	Optional<UserEntity> findByEmail(final String email);
 	
-	Optional<UserEntity> findByName(final String name);
+	Optional<UserEntity> findByUsername(final String username);
 	
-	@Query("SELECT U FROM UserEntity U WHERE U.email = :login OR U.name = :login")
-	Optional<UserEntity> findByEmailOrName(@Param("login") String login);
+	@Query("SELECT U FROM UserEntity U WHERE U.email = :login OR U.username = :login")
+	Optional<UserEntity> findByEmailOrUsername(@Param("login") String login);
 }

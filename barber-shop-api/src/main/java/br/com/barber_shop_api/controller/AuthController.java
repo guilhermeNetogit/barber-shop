@@ -27,7 +27,7 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-		var userOpt = userRepository.findByEmailOrName(request.login());
+		var userOpt = userRepository.findByEmailOrUsername(request.login());
 
 		if (userOpt.isEmpty() || !passwordEncoder.matches(request.password(), userOpt.get().getPassword())) {
 			return ResponseEntity.status(401).body(new ErrorResponse("Usuário ou senha inválidos"));
@@ -36,7 +36,7 @@ public class AuthController {
 		UserEntity user = userOpt.get();
 		String token = jwtService.generateToken(user.getEmail(), user.getRole());
 
-		return ResponseEntity.ok(new LoginResponse(token, user.getName(), user.getEmail(), user.getRole()));
+		return ResponseEntity.ok(new LoginResponse(token, user.getUsername(), user.getEmail(), user.getRole()));
 	}
 
 	public record LoginRequest(String login, String password) {
@@ -59,11 +59,12 @@ public class AuthController {
 			return ResponseEntity.status(409).body(new ErrorResponse("E-mail já cadastrado"));
 		}
 
-		if (userRepository.findByName(request.name()).isPresent()) {
+		if (userRepository.findByUsername(request.username()).isPresent()) {
 			return ResponseEntity.status(409).body(new ErrorResponse("Nome de usuário já está em uso"));
 		}
 
 		UserEntity user = new UserEntity();
+		user.setUsername(request.username());
 		user.setName(request.name());
 		user.setCpf(request.cpf());
 		user.setEmail(request.email());
@@ -75,7 +76,7 @@ public class AuthController {
 		return ResponseEntity.ok(new SuccessResponse("Usuário cadastrado com sucesso!"));
 	}
 
-	public record RegisterRequest(String name, String email, String cpf, String password) {
+	public record RegisterRequest(String username, String name, String email, String cpf, String password) {
 	}
 	
 
