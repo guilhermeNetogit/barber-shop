@@ -57,6 +57,7 @@ export class EditProfileComponent implements OnInit {
     this.profileForm = this.fb.group(
       {
         name: ['', [Validators.required, Validators.minLength(3)]],
+        username: ['', [Validators.required, Validators.minLength(3)]],
         email: ['', [Validators.required, Validators.email]],
         cpf: ['', [Validators.required]],
         senhaAtual: ['', [Validators.required]],
@@ -71,6 +72,7 @@ export class EditProfileComponent implements OnInit {
     this.userService.getMe().subscribe({
       next: (dados) => {
         this.profileForm.patchValue({
+          username: dados.username,
           name: dados.name,
           email: dados.email,
           cpf: dados.cpf,
@@ -100,7 +102,7 @@ export class EditProfileComponent implements OnInit {
       return;
     }
 
-    const { name, email, cpf, senhaAtual, novaSenha } = this.profileForm.value;
+    const { username, name, email, cpf, senhaAtual, novaSenha } = this.profileForm.value;
 
     const emailAlterado = email.trim().toLowerCase() !== this.profileForm.get('email')?.value;
 
@@ -119,6 +121,7 @@ export class EditProfileComponent implements OnInit {
 
     this.userService
       .updateMe({
+        username: username.trim(),
         name: name.trim(),
         email: email.trim(),
         cpf: cpf.trim(),

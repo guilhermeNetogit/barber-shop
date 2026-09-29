@@ -9,13 +9,14 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
-  name: string;
+  username: string;
   email: string;
   role: string;
 }
 
 export interface RegisterRequest {
   name: string;
+  username: string;
   email: string;
   cpf: string;
   password: string;

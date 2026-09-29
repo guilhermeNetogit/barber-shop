@@ -71,8 +71,8 @@ export class LoginComponent {
         this.loading.set(false);
 
         const name =
-          response?.name || response?.user?.name || response?.login || this.loginForm.value.login;
-        localStorage.setItem('userName', name);
+          response?.username || response?.user?.username || response?.login || this.loginForm.value.login;
+        localStorage.setItem('username', name);
 
         // Redireciona para a página de agendamentos mensais
         this.router.navigate(['/schedules/month']);

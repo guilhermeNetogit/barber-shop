@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface UserProfile {
+  username: string;
   name: string;
   email: string;
   cpf: string;
@@ -10,6 +11,7 @@ export interface UserProfile {
 }
 
 export interface UpdateProfileRequest {
+  username?: string;
   name?: string;
   email?: string;
   cpf?: string;
