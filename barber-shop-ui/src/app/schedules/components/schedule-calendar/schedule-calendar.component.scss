@@ -67,3 +67,29 @@ mat-paginator {
 ::ng-deep .mat-calendar-period-button {
   text-transform: capitalize !important;
 }
+
+// Força a aplicação das cores personalizadas nas células do calendário
+::ng-deep {
+  .mat-calendar-body-cell {
+    &.full-day .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+      background-color: #ffebee !important;
+      color: #c62828 !important;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+
+    &.busy-day .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+      background-color: #fff8e1 !important;
+      color: #f57f17 !important;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+
+    &.light-day .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+      background-color: #e8f5e9 !important;
+      color: #2e7d32 !important;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+  }
+}

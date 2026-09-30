@@ -29,7 +29,7 @@ public class UserController {
 	public ResponseEntity<?> getCurrentUser(Authentication authentication) {
 		UserEntity user = userRepository.findByEmail(authentication.getName())
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
-		return ResponseEntity.ok(new UserProfileResponse(user.getName(), user.getEmail(), user.getCpf(), user.getRole()));
+		return ResponseEntity.ok(new UserProfileResponse(user.getUsername(), user.getName(), user.getEmail(), user.getCpf(), user.getRole()));
 	    
 	}
 	
@@ -40,6 +40,10 @@ public class UserController {
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             return ResponseEntity.status(401).body(new ErrorResponse("Senha atual incorreta"));
+        }
+        
+        if (request.username() != null && !request.username().isBlank()) {
+            user.setUsername(request.username());
         }
 
         if (request.name() != null && !request.name().isBlank()) {
@@ -63,10 +67,10 @@ public class UserController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new UserProfileResponse(user.getName(), user.getEmail(), user.getCpf(), user.getRole()));
+        return ResponseEntity.ok(new UserProfileResponse(user.getUsername(), user.getName(), user.getEmail(), user.getCpf(), user.getRole()));
     }
 	
-	public record UserProfileResponse(String name, String email, String cpf, String role) {}
-    public record UpdateProfileRequest(String name, String email, String cpf, String currentPassword, String newPassword) {}
+	public record UserProfileResponse(String username, String name, String email, String cpf, String role) {}
+    public record UpdateProfileRequest(String username,String name, String email, String cpf, String currentPassword, String newPassword) {}
     public record ErrorResponse(String message) {}
 }

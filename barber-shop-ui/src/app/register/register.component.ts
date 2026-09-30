@@ -35,6 +35,7 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.fb.group(
       {
+        username: ['', [Validators.required, Validators.minLength(3)]],
         name: ['', [Validators.required, Validators.minLength(3)]],
         email: ['', [Validators.required, Validators.email]],
         cpf: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
@@ -58,9 +59,9 @@ export class RegisterComponent {
     this.errorMessage.set('');
     this.successMessage.set('');
 
-    const { name, email, cpf, password } = this.registerForm.value;
+    const { name, username, email, cpf, password } = this.registerForm.value;
 
-    this.authService.register({ name, email, cpf, password }).subscribe({
+    this.authService.register({ name, username, email, cpf, password }).subscribe({
       next: () => {
         this.loading.set(false);
         this.successMessage.set('Cadastro realizado com sucesso! Redirecionando...');

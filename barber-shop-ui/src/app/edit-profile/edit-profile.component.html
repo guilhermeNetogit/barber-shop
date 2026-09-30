@@ -15,6 +15,14 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field-custom">
+            <mat-label>Usuário</mat-label>
+            <input matInput formControlName="username" type="text" />
+            @if (profileForm.get('username')?.hasError('required')) {
+              <mat-error>Informe seu usuário.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-custom">
             <mat-label>E-mail</mat-label>
             <input matInput formControlName="email" type="email" />
             @if (profileForm.get('email')?.hasError('required')) {
