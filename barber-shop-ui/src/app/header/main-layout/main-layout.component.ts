@@ -25,6 +25,7 @@ import { AuthService } from '../../login/service/auth.service';
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
   title = signal<string>('Barber Shop');
+  isFavorite = false;
   userName = signal('');
   private routeSubscription?: Subscription;
 
@@ -48,6 +49,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    const savedFavorite = localStorage.getItem('isFavorite');
+    this.isFavorite = savedFavorite === 'true';
+
     // Pega o nome do localStorage (ou define 'Usuário' como fallback)
     const name = localStorage.getItem('userName') || localStorage.getItem('user_name') || 'Usuário';
     this.userName.set(name);
@@ -63,6 +68,15 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSubscription?.unsubscribe();
+  }
+
+  toggleFavorite(): void {
+    this.isFavorite = !this.isFavorite;
+    localStorage.setItem('isFavorite', String(this.isFavorite));
+
+    if (this.isFavorite) {
+    alert('Pressione Ctrl + D para adicionar este site aos favoritos do seu navegador!');
+  }
   }
 
   private updateTitle(): void {
