@@ -12,8 +12,10 @@
     border: none !important;
     box-shadow: none !important;
     outline: none !important;
-    border-radius: 50% !important; /* Mantém o foco/hover arredondado */
-    transition: background-color 0.2s ease-in-out !important; /* Suaviza a transição */
+    border-radius: 50% !important;
+    /* Mantém o foco/hover arredondado */
+    transition: background-color 0.2s ease-in-out !important;
+    /* Suaviza a transição */
 
     /* Desativa as camadas padrão de toque/ripple do Angular Material MDC */
     ::ng-deep .mat-mdc-button-persistent-ripple,
@@ -53,4 +55,12 @@
   width: auto;
   margin-right: 12px;
   object-fit: contain;
+}
+
+button mat-icon {
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+
+  &:active {
+    transform: scale(1.3);
+  }
 }
