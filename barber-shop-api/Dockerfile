@@ -1,16 +1,14 @@
 # Estágio 1: Build da aplicação
-FROM eclipse-temurin:21-jdk-jammy AS build
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copia os arquivos de configuração do Maven e o código fonte
+# Copia o pom.xml e baixa as dependências (cache de camadas do Docker)
 COPY pom.xml ./
-COPY .mvn .mvn
-COPY mvnw ./
-COPY src src
+RUN mvn dependency:go-offline
 
-# Dá permissão de execução para o mvnw e faz o build empacotando o jar
-RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
+# Copia o código fonte e faz o empacotamento
+COPY src src
+RUN mvn clean package -DskipTests
 
 # Estágio 2: Execução da aplicação
 FROM eclipse-temurin:21-jre-jammy
