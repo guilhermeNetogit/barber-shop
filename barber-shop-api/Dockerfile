@@ -3,9 +3,9 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 
 # Copia os arquivos de configuração do Maven e o código fonte
-mvnw pom.xml ./
+COPY pom.xml ./
 COPY .mvn .mvn
-COPY mvnw pom.xml ./
+COPY mvnw ./
 COPY src src
 
 # Dá permissão de execução para o mvnw e faz o build empacotando o jar
