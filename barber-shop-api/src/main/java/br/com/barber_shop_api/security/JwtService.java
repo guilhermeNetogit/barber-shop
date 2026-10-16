@@ -25,11 +25,11 @@ public class JwtService {
 		return Keys.hmacShaKeyFor(secret.getBytes());
 	}
 
-	public String generateToken(String email, String role) {
+	public String generateToken(String username, String role) {
 		Date now = new Date();
 		Date expiry = new Date(now.getTime() + expirationMs);
 
-		return Jwts.builder().subject(email).claim("role", role).issuedAt(now).expiration(expiry)
+		return Jwts.builder().subject(username).claim("role", role).issuedAt(now).expiration(expiry)
 				.signWith(getSigningKey()).compact();
 	}
 
